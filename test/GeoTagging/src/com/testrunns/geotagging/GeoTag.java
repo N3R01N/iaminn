@@ -5,6 +5,7 @@ import android.util.Log;
 public class GeoTag {
 	
 	private static final String TAG = "GeoTag";
+	public static final String NEW_TAG = "new";
 	
 	private int id;
 	private String name;
@@ -33,8 +34,8 @@ public class GeoTag {
 		latitude = la;
 		this.type = type;
 		picpath = pic;
-		time = "new";
-		externalKey = "new";
+		time = NEW_TAG;
+		externalKey = NEW_TAG;
 		Log.w(TAG,"new geotag");
 	}
 

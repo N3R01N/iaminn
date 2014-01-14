@@ -97,7 +97,6 @@ public class AddGeoTagActivity extends FragmentActivity implements
 		editTextGeoTagDescriptiton = (EditText) findViewById(R.id.editTextTagDesc);
 
 		mLocationClient = new LocationClient(this, this, this);
-
 	}
 
 	@Override
@@ -109,7 +108,7 @@ public class AddGeoTagActivity extends FragmentActivity implements
 	
 	//----------------------- Picture ------------------------------
 	
-	private File createImageFile() throws IOException{
+	public File createImageFile() throws IOException{
 		// Create an image file name
 	    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 	    String imageFileName = "JPEG_" + timeStamp + "_";
@@ -122,7 +121,8 @@ public class AddGeoTagActivity extends FragmentActivity implements
 	    );
 
 	    // Save a file: path for use with ACTION_VIEW intents
-	    currentPhotoPath = "file:" + image.getAbsolutePath();
+	    currentPhotoPath =  image.getAbsolutePath();
+	    Log.d(TAG,"path:" +currentPhotoPath);
 	    return image;
 
 	}
@@ -144,7 +144,6 @@ public class AddGeoTagActivity extends FragmentActivity implements
 			if(photoFile != null){
 				takePicIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
 				startActivityForResult(takePicIntent, requestCode);
-				Log.d(TAG,"started activity");
 			}
 			
 		}
@@ -153,12 +152,27 @@ public class AddGeoTagActivity extends FragmentActivity implements
 
 	private void displayImageThumbnail() {
 		Log.d("Bild", "in der displayImageThumbnail methode!");
-		
-		Bitmap map = BitmapFactory.decodeFile(currentPhotoPath);
-		Log.d(TAG, "bitmap:"+map);
+		// Get the dimensions of the View
+	    int targetW = mImageView.getWidth();
+	    int targetH = mImageView.getHeight();
 
-			mImageView.setImageBitmap(map);
+	    // Get the dimensions of the bitmap
+	    BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+	    bmOptions.inJustDecodeBounds = true;
+	    BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
+	    int photoW = bmOptions.outWidth;
+	    int photoH = bmOptions.outHeight;
 
+	    // Determine how much to scale down the image
+	    int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+	    // Decode the image file into a Bitmap sized to fill the View
+	    bmOptions.inJustDecodeBounds = false;
+	    bmOptions.inSampleSize = scaleFactor;
+	    bmOptions.inPurgeable = true;
+
+	    Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
+	 	mImageView.setImageBitmap(bitmap);
 	}
 
 	@Override
@@ -283,48 +297,6 @@ public class AddGeoTagActivity extends FragmentActivity implements
 
 	}
 
-	public void saveGeoTag(View view) {
-		if (servicesConnected()) {
-			mCurrentLocation = mLocationClient.getLastLocation();
-			Log.d("LOCATION", "lang: " + mCurrentLocation.getLatitude()
-					+ " long: " + mCurrentLocation.getLongitude());
-			
-			String name = editTextGeoTagName.getText().toString();
-			double la = mCurrentLocation.getLatitude();
-			double lo = mCurrentLocation.getLongitude();
-			int type = 1;
-			String pic = "test";
-			
-			if(name.length()==0 || name == ""){
-				Toast.makeText(this, "please enter a name for the tag", Toast.LENGTH_LONG).show();
-				return;
-			} 
-			
-			GeoTag tag = new GeoTag(name, lo, la, type, pic);
-			
-			addGeoTag(tag);
-		}
-	}
-	
-	private void addGeoTag(GeoTag tag) {
-		Uri uri = Uri.parse(GeoTagContentProvider.CONTENT_URI+"/geotag/"+tag.getId());
-		Log.d(TAG,"uri: "+uri);
-		ContentValues cv = new ContentValues();
-		cv.put(GeoTagTable.GEOTAG_KEY_NAME, tag.getName());
-		cv.put(GeoTagTable.GEOTAG_KEY_LAT, tag.getLatitude());
-		cv.put(GeoTagTable.GEOTAG_KEY_LONG, tag.getLongitude());
-		cv.put(GeoTagTable.GEOTAG_KEY_TYPE, tag.getType());
-		cv.put(GeoTagTable.GEOTAG_KEY_TIME, tag.getTime());
-		cv.put(GeoTagTable.GEOTAG_KEY_PICPATH, tag.getPicpath());
-		cv.put(GeoTagTable.GEOTAG_KEY_EXTERNKEY, tag.getExternalKey());
-		
-		Uri idUri = getContentResolver().insert(uri, cv);
-		
-		int id = Integer.parseInt(idUri.getLastPathSegment());
-		Log.d(TAG,"inserting returns id: "+id);
-		tag.setId(id);	
-	}
-
 	private void getLocation(){
 		if(servicesConnected()){
 			mCurrentLocation = mLocationClient.getLastLocation();
@@ -415,4 +387,51 @@ public class AddGeoTagActivity extends FragmentActivity implements
 				Toast.LENGTH_SHORT).show();
 	}
 
+	//----------------------------save Geo Tag------------------------------
+	
+	public void saveGeoTag(View view) {
+		if (servicesConnected()) {
+			mCurrentLocation = mLocationClient.getLastLocation();
+			Log.d("LOCATION", "lang: " + mCurrentLocation.getLatitude()
+					+ " long: " + mCurrentLocation.getLongitude());
+			
+			String name = editTextGeoTagName.getText().toString();
+			double la = mCurrentLocation.getLatitude();
+			double lo = mCurrentLocation.getLongitude();
+			int type = 1;
+			String pic = "noPic";
+			if(currentPhotoPath != null){
+				pic = currentPhotoPath;
+			}
+			
+			if(name.length()==0 || name == ""){
+				Toast.makeText(this, "please enter a name for the tag", Toast.LENGTH_LONG).show();
+				return;
+			} 
+			
+			GeoTag tag = new GeoTag(name, lo, la, type, pic);
+			
+			addGeoTag(tag);
+		}
+	}
+	
+	private void addGeoTag(GeoTag tag) {
+		Uri uri = Uri.parse(GeoTagContentProvider.CONTENT_URI+"/geotag/"+tag.getId());
+		Log.d(TAG,"uri: "+uri);
+		ContentValues cv = new ContentValues();
+		cv.put(GeoTagTable.GEOTAG_KEY_NAME, tag.getName());
+		cv.put(GeoTagTable.GEOTAG_KEY_LAT, tag.getLatitude());
+		cv.put(GeoTagTable.GEOTAG_KEY_LONG, tag.getLongitude());
+		cv.put(GeoTagTable.GEOTAG_KEY_TYPE, tag.getType());
+		cv.put(GeoTagTable.GEOTAG_KEY_TIME, tag.getTime());
+		cv.put(GeoTagTable.GEOTAG_KEY_PICPATH, tag.getPicpath());
+		cv.put(GeoTagTable.GEOTAG_KEY_EXTERNKEY, tag.getExternalKey());
+		
+		Uri idUri = getContentResolver().insert(uri, cv);
+		
+		int id = Integer.parseInt(idUri.getLastPathSegment());
+		Log.d(TAG,"inserting returns id: "+id);
+		tag.setId(id);	
+	}
+	
 }

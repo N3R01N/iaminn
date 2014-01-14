@@ -21,6 +21,7 @@ public class GeoTagContentProvider extends ContentProvider {
 	/** Values for the URIMatcher. */
 	private static final int GEOTAG_ID = 1;
 	private static final int GEOTAG_TYPE = 2;
+	private static final int GEOTAG_SYNC = 3;
 
 	/** The authority for this content provider. */
 	private static final String AUTHORITY = "com.testrunns.geotagging.contentprovider";
@@ -49,6 +50,7 @@ public class GeoTagContentProvider extends ContentProvider {
 	static {
 		sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/geotag/#", GEOTAG_ID);
 		sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/type/#", GEOTAG_TYPE);
+		sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/sync/#", GEOTAG_SYNC);
 	}
 	
 	@Override
@@ -84,6 +86,8 @@ public class GeoTagContentProvider extends ContentProvider {
 			}
 			
 			break;
+		case GEOTAG_SYNC:
+			builder.appendWhere(GeoTagTable.GEOTAG_COL_EXTERNKEY+ "=" + GeoTag.NEW_TAG);
 
 		default:
 			throw new IllegalArgumentException("Unknown URI: " + uri);
