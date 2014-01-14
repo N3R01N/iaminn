@@ -184,7 +184,7 @@ public class GeoTagContentProvider extends ContentProvider {
 	 *            The set of columns about to be queried.
 	 */
 	private void checkColumns(String[] projection) {
-		String[] available = { GeoTagTable.GEOTAG_KEY_ID, GeoTagTable.GEOTAG_KEY_TEXT,
+		String[] available = { GeoTagTable.GEOTAG_KEY_ID, GeoTagTable.GEOTAG_KEY_NAME,
 				GeoTagTable.GEOTAG_KEY_LONG, GeoTagTable.GEOTAG_KEY_LAT, GeoTagTable.GEOTAG_KEY_TYPE,
 				GeoTagTable.GEOTAG_KEY_PICPATH, GeoTagTable.GEOTAG_KEY_TIME, GeoTagTable.GEOTAG_KEY_EXTERNKEY};
 

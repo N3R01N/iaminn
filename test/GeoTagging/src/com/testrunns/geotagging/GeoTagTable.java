@@ -12,7 +12,7 @@ public class GeoTagTable {
 	public static final String GEOTAG_KEY_ID = "_id";
 	public static final int GEOTAG_COL_ID = 0;
 
-	public static final String GEOTAG_KEY_TEXT = "geotag_name";
+	public static final String GEOTAG_KEY_NAME = "geotag_name";
 	public static final int GEOTAG_COL_TEXT = GEOTAG_COL_ID + 1;
 
 	public static final String GEOTAG_KEY_LONG = "geotag_longitude";
@@ -40,9 +40,9 @@ public class GeoTagTable {
 	 */
 	public static final String DATABASE_CREATE = "create table "+ DATABASE_TABLE_GEOTAG 
 			+ " (" + GEOTAG_KEY_ID+ " integer primary key autoincrement, " 
-			+ GEOTAG_KEY_TEXT+ " text not null, " 
-			+ GEOTAG_KEY_LONG + " float not null, "
-			+ GEOTAG_KEY_LAT + " float not null, "
+			+ GEOTAG_KEY_NAME+ " text not null, " 
+			+ GEOTAG_KEY_LONG + " double not null, "
+			+ GEOTAG_KEY_LAT + " double not null, "
 			+ GEOTAG_KEY_TYPE + " text not null, "
 			+ GEOTAG_KEY_PICPATH + " text not null, "
 			+ GEOTAG_KEY_TIME + " text not null, "

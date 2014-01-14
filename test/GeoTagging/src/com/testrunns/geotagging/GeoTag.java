@@ -1,11 +1,15 @@
 package com.testrunns.geotagging;
 
+import android.util.Log;
+
 public class GeoTag {
+	
+	private static final String TAG = "GeoTag";
 	
 	private int id;
 	private String name;
-	private float longitude;
-	private float latitude;
+	private double longitude;
+	private double latitude;
 	private int type;
 	private String picpath;
 	private String time;
@@ -22,7 +26,7 @@ public class GeoTag {
 		externalKey = "unknown";
 	}
 	
-	public GeoTag(String name, float lo, float la, int type, String pic){
+	public GeoTag(String name, double lo, double la, int type, String pic){
 		id = 0;
 		this.name = name;
 		longitude = lo;
@@ -31,6 +35,7 @@ public class GeoTag {
 		picpath = pic;
 		time = "new";
 		externalKey = "new";
+		Log.w(TAG,"new geotag");
 	}
 
 	public int getId() {
@@ -49,7 +54,7 @@ public class GeoTag {
 		this.name = name;
 	}
 
-	public float getLongitude() {
+	public double getLongitude() {
 		return longitude;
 	}
 
@@ -57,7 +62,7 @@ public class GeoTag {
 		this.longitude = longitude;
 	}
 
-	public float getLatitude() {
+	public double getLatitude() {
 		return latitude;
 	}
 
