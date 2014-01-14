@@ -9,5 +9,7 @@
     
     <string name="lable_lat">Latitude</string>
     <string name="lable_long">Longitude</string>
+    
+    <string name="title_activity_view_map">ViewMapActivity</string>
 
 </resources>
