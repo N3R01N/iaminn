@@ -4,5 +4,7 @@
     <string name="app_name">GeoTagging</string>
     <string name="action_settings">Settings</string>
     <string name="launch_camera_button">Take a Picture</string>
+    <string name="image_content_description">Picture</string>
+    <string name="get_location_button">Get Location</string>
 
 </resources>
