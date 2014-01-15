@@ -412,8 +412,7 @@ public class AddGeoTagActivity extends FragmentActivity implements
 			} 
 			
 			GeoTag tag = new GeoTag(name, lo, la, type, pic);
-			editTextGeoTagName.setText("");
-			editTextGeoTagDescriptiton.setText("");
+			
 			addGeoTag(tag);
 		}
 	}
