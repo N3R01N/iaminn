@@ -13,7 +13,7 @@ public class GeoTagTable {
 	public static final int GEOTAG_COL_ID = 0;
 
 	public static final String GEOTAG_KEY_NAME = "geotag_name";
-	public static final int GEOTAG_COL_TEXT = GEOTAG_COL_ID + 1;
+	public static final int GEOTAG_COL_NAME = GEOTAG_COL_ID + 1;
 
 	public static final String GEOTAG_KEY_LONG = "geotag_longitude";
 	public static final int GEOTAG_COL_LONG = GEOTAG_COL_ID + 2;

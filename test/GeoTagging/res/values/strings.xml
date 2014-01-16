@@ -6,8 +6,9 @@
     <string name="launch_camera_button">Take a Picture</string>
     <string name="image_content_description">Picture</string>
     <string name="save_tag_button">Save GeoTag</string>
-    
     <string name="lable_lat">Latitude</string>
     <string name="lable_long">Longitude</string>
+    <string name="title_activity_view_map">ViewMapActivity</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

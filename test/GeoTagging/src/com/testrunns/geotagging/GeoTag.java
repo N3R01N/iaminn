@@ -13,6 +13,7 @@ public class GeoTag {
 	private double latitude;
 	private int type;
 	private String picpath;
+	private String text;
 	private String time;
 	private String externalKey;
 	
@@ -27,7 +28,7 @@ public class GeoTag {
 		externalKey = "unknown";
 	}
 	
-	public GeoTag(String name, double lo, double la, int type, String pic){
+	public GeoTag(String name, double lo, double la, int type, String text, String pic){
 		id = 0;
 		this.name = name;
 		longitude = lo;
@@ -59,7 +60,7 @@ public class GeoTag {
 		return longitude;
 	}
 
-	public void setLongitude(float longitude) {
+	public void setLongitude(double longitude) {
 		this.longitude = longitude;
 	}
 
@@ -67,7 +68,7 @@ public class GeoTag {
 		return latitude;
 	}
 
-	public void setLatitude(float latitude) {
+	public void setLatitude(double latitude) {
 		this.latitude = latitude;
 	}
 
@@ -82,6 +83,10 @@ public class GeoTag {
 	public String getPicpath() {
 		return picpath;
 	}
+	
+	public String getText() {
+		return text;
+	}
 
 	public void setPicpath(String picpath) {
 		this.picpath = picpath;
@@ -93,6 +98,10 @@ public class GeoTag {
 
 	public void setTime(String time) {
 		this.time = time;
+	}
+	
+	public void setText(String text) {
+		this.text = text;
 	}
 
 	public String getExternalKey() {

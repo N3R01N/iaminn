@@ -78,12 +78,12 @@ public class AddGeoTagActivity extends FragmentActivity implements
 
 	protected void onStart() {
 		super.onStart();
-		mLocationClient.connect();
+		//mLocationClient.connect();
 	}
 
 	protected void onStop() {
 		Log.d("onStop", "stopping mLocationClient!");
-		mLocationClient.disconnect();
+		//mLocationClient.disconnect();
 		super.onStop();
 	}
 
@@ -91,14 +91,14 @@ public class AddGeoTagActivity extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.layout_add_geo_tag);
-
+/*
 		mImageView = (ImageView) findViewById(R.id.imageViewPic);
 		textViewLat = (TextView) findViewById(R.id.textViewValueLat);
 		textViewLong = (TextView) findViewById(R.id.textViewValueLong);
 		editTextGeoTagName = (EditText) findViewById(R.id.editTextTagName);
 		editTextGeoTagDescriptiton = (EditText) findViewById(R.id.editTextTagDesc);
 
-		mLocationClient = new LocationClient(this, this, this);
+		mLocationClient = new LocationClient(this, this, this);*/
 	}
 
 	@Override
@@ -411,7 +411,7 @@ public class AddGeoTagActivity extends FragmentActivity implements
 				return;
 			} 
 			
-			GeoTag tag = new GeoTag(name, lo, la, type, pic);
+			GeoTag tag = new GeoTag(name, lo, la, type,"", pic);
 			
 			addGeoTag(tag);
 		}
