@@ -2,6 +2,8 @@ package com.testrunns.geotagging;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -17,6 +19,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.app.Activity;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,10 +29,14 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ViewMapActivity extends FragmentActivity implements LoaderCallbacks<Cursor>, OnInfoWindowClickListener {
+public class ViewMapActivity extends FragmentActivity implements OnInfoWindowClickListener {
+//public class ViewMapActivity extends FragmentActivity implements LoaderCallbacks<Cursor>, OnInfoWindowClickListener {
 	static final LatLng HAMBURG = new LatLng(53.558, 9.927);
 	static final LatLng KIEL = new LatLng(53.551, 9.993);
 	private GoogleMap map;
@@ -38,21 +45,36 @@ public class ViewMapActivity extends FragmentActivity implements LoaderCallbacks
 	public static final String URL = "http://wi-gate.technikum-wien.at:60660/marker/getMarker";
     TextView outputText;
     ImageView imageView;
+    Button button1;
+    GeoTagOpenHelper openHelper;
+    List<GeoTag> geoTags;
     private static final int LOADER_ID = 1;
+    public void switchActivity(View view){
+        Intent intent = new Intent(this, AddGeoTagActivity.class);
+        startActivity(intent);
+}
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_view_map);
 		outputText = (TextView) findViewById(R.id.textView);
 		imageView = (ImageView) findViewById(R.id.imageView);
+		button1 = (Button) findViewById(R.id.button1);
+		/*geoTags = new ArrayList<GeoTag>();
+		openHelper = new GeoTagOpenHelper(this);
+		geoTags = openHelper.getGeoTagFromCategory("1");
+		Log.d("wi11b031","wi11b031 size db:"+geoTags.size());
+		*/
 		map = ((MapFragment)getFragmentManager().findFragmentById(R.id.map)).getMap();
 		map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		map.setOnInfoWindowClickListener(this);
 		XMLservlet = new GetXMLTask();
 		XMLservlet.execute(new String[] { URL }, this);
-		
-		getSupportLoaderManager().initLoader(LOADER_ID, null, this);
-		
+		button1.bringToFront();
+		imageView.setVisibility(View.INVISIBLE);
+		imageView.setOnClickListener(myhandler);
+		//getSupportLoaderManager().initLoader(LOADER_ID, null, this);
 		
 		 if (map!=null){
 			 
@@ -74,7 +96,7 @@ public class ViewMapActivity extends FragmentActivity implements LoaderCallbacks
 	          map.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
 	         /* Uri uri = Uri.parse(GeoTagContentProvider.CONTENT_URI+"/geotag/"+AddGeoTagActivity.SHOW_ALL);
 	          getContentResolver().query(uri, null, null, null, null);*/
-	          getSupportLoaderManager().initLoader(0, null, this);  
+	          //getSupportLoaderManager().initLoader(0, null, this);  
 	        }
 		// Move the camera instantly to hamburg with a zoom of 15.
 		
@@ -99,7 +121,13 @@ public class ViewMapActivity extends FragmentActivity implements LoaderCallbacks
 		getMenuInflater().inflate(R.menu.view_map, menu);
 		return true;
 	}
-
+	
+	View.OnClickListener myhandler = new View.OnClickListener() {
+	    public void onClick(View v) {
+	    	if(v != null)
+	    		imageView.setVisibility(View.INVISIBLE);
+	    }
+	};
 
 	private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 		  ImageView bmImage;
@@ -152,12 +180,14 @@ public class ViewMapActivity extends FragmentActivity implements LoaderCallbacks
 		java.net.URL url;
 		new DownloadImageTask((ImageView) findViewById(R.id.imageView))
 	        .execute("http://mypics.at/d/1526-12/Wiese.jpg");
-			/*DownloadImageTask dit = new DownloadImageTask(imageView);
+		imageView.setVisibility(View.VISIBLE);
+		imageView.bringToFront();
+		/*DownloadImageTask dit = new DownloadImageTask(imageView);
 			url = new java.net.URL("");
 			Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
 			imageView.setImageBitmap(bmp);*/
 	}
-
+/*
 	@Override
 	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
 		String[] projection = {GeoTagTable.GEOTAG_KEY_ID, GeoTagTable.GEOTAG_KEY_NAME,GeoTagTable.GEOTAG_KEY_LONG,GeoTagTable.GEOTAG_KEY_LAT,GeoTagTable.GEOTAG_KEY_TYPE, GeoTagTable.GEOTAG_KEY_PICPATH, GeoTagTable.GEOTAG_KEY_TIME, GeoTagTable.GEOTAG_KEY_EXTERNKEY};
@@ -181,6 +211,6 @@ public class ViewMapActivity extends FragmentActivity implements LoaderCallbacks
 	public void onLoaderReset(Loader<Cursor> arg0) {
 		//m_jokeAdapter.swapCursor(null);
 		
-	}
+	}*/
 }
 

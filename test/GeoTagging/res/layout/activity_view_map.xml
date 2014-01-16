@@ -22,14 +22,23 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/map"
-        android:src="@drawable/ic_launcher" />
+        android:layout_alignTop="@+id/textView"/>
+    
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/imageView"
+        android:layout_alignTop="@+id/imageView"
+        android:text="Add GeoTag" 
+        android:onClick="switchActivity"/>
 
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.MapFragment"
         android:layout_width="wrap_content"
         android:layout_height="250dp"
+        android:layout_alignBottom="@+id/imageView"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 

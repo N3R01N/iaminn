@@ -63,8 +63,7 @@ public class GeoTagContentProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
 			String sortOrder) {
 		
-		Log.d(TAG,"query: "+uri);
-		
+		Log.d("wi11b031","wi11b031 uri: " + uri);
 		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 		
 		checkColumns(projection);
@@ -77,7 +76,7 @@ public class GeoTagContentProvider extends ContentProvider {
 		case GEOTAG_TYPE:
 			
 			String type = uri.getLastPathSegment();
-			
+			Log.d("wi11b031","wi11b031 type: " + type);
 			if(!type.equals(AddGeoTagActivity.SHOW_ALL)){
 				builder.appendWhere(GeoTagTable.GEOTAG_KEY_TYPE + "=" + type);
 			}

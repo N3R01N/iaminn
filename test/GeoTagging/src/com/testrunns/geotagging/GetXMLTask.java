@@ -59,6 +59,7 @@ public class GetXMLTask extends AsyncTask<String, Void, String> {
 				geoTagList = parser.parse(stream);
 				if(geoTagList != null)
 					caller.outputText.setText(geoTagList.get(1).getName());
+					caller.outputText.bringToFront();
 			} catch (XmlPullParserException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
