@@ -57,9 +57,6 @@ public class AddGeoTagActivity extends FragmentActivity implements
         private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
         public static final int MEDIA_TYPE_IMAGE = 1;
 
-        // Http connection
-        public static final String SERVICE_URL = "http://wi-gate.technikum-wien.at:60360/examples/servlets/servlet/HelloWorldExample";
-
         // Location
         private final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
         private Location mCurrentLocation;
@@ -195,81 +192,6 @@ public class AddGeoTagActivity extends FragmentActivity implements
                 default:
                         Log.d("onActivityResult", "default case in onActivityResult");
                         break;
-                }
-
-        }
-
-        // ----------------Network Connection -----------------------//
-
-        public void getUrlclickHandler(View v) {
-                ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
-                if (networkInfo != null && networkInfo.isConnected()) {
-                        new DownloadWebpageTask().execute(SERVICE_URL);
-                } else {
-                        Toast.makeText(this, "conn not OK", Toast.LENGTH_SHORT).show();
-                }
-        }
-
-        private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
-
-                @Override
-                protected String doInBackground(String... urls) {
-                        try {
-                                return downloadUrl(urls[0]);
-                        } catch (IOException e) {
-                                return "Unable to retrieve page";
-                        }
-                }
-
-                private String downloadUrl(String myurl) throws IOException {
-                        InputStream is = null;
-                        // Only display the first 500 characters of the retrieved
-                        // web page content.
-                        int len = 500;
-
-                        try {
-                                URL url = new URL(myurl);
-                                HttpURLConnection conn = (HttpURLConnection) url
-                                                .openConnection();
-                                conn.setReadTimeout(10000 /* milliseconds */);
-                                conn.setConnectTimeout(15000 /* milliseconds */);
-                                conn.setRequestMethod("GET");
-                                conn.setDoInput(true);
-                                Log.d("test", "hier");
-
-                                // Starts the query
-                                conn.connect();
-                                int response = conn.getResponseCode();
-                                Log.d("downloadUrl", "The response is: " + response);
-                                is = conn.getInputStream();
-
-                                // Convert the InputStream into a string
-                                String contentAsString = readIt(is, len);
-                                return contentAsString;
-
-                                // Makes sure that the InputStream is closed after the app is
-                                // finished using it.
-                        } finally {
-                                if (is != null) {
-                                        is.close();
-                                }
-                        }
-                }
-
-                // Reads an InputStream and converts it to a String.
-                public String readIt(InputStream stream, int len) throws IOException,
-                                UnsupportedEncodingException {
-                        Reader reader = null;
-                        reader = new InputStreamReader(stream, "UTF-8");
-                        char[] buffer = new char[len];
-                        reader.read(buffer);
-                        return new String(buffer);
-                }
-
-                @Override
-                protected void onPostExecute(String result) {
-                        Log.d("onPostExecute",""+result);
                 }
 
         }

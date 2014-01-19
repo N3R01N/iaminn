@@ -70,6 +70,12 @@ public class ViewMapActivity extends FragmentActivity implements LoaderCallbacks
 		imageView.setVisibility(View.INVISIBLE);
 		imageView.setOnClickListener(myhandler);
 	}
+	
+	public void onStart(){
+		super.onStart();
+		getSupportLoaderManager().restartLoader(LOADER_ID, null, this);
+	}
+	
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
