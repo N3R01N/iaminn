@@ -401,7 +401,7 @@ public class AddGeoTagActivity extends FragmentActivity implements
                         double la = mCurrentLocation.getLatitude();
                         double lo = mCurrentLocation.getLongitude();
                         int type = 1;
-                        String pic = "noPic";
+                        String pic = GeoTag.NO_PIC;
                         if(currentPhotoPath != null){
                                 pic = currentPhotoPath;
                         }
@@ -414,6 +414,7 @@ public class AddGeoTagActivity extends FragmentActivity implements
                         GeoTag tag = new GeoTag(name, lo, la, type, "",pic);
                         editTextGeoTagName.setText("");
                         editTextGeoTagDescriptiton.setText("");
+                        currentPhotoPath = null;
                         addGeoTag(tag);
                 }
         }

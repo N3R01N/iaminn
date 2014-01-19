@@ -5,7 +5,9 @@ import android.util.Log;
 public class GeoTag {
 	
 	private static final String TAG = "GeoTag";
+	
 	public static final String NEW_TAG = "new";
+	public static final String NO_PIC = "noPic";
 	
 	private int id;
 	private String name;

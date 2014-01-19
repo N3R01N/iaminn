@@ -41,8 +41,8 @@ public class GeoTagTable {
 	public static final String DATABASE_CREATE = "create table "+ DATABASE_TABLE_GEOTAG 
 			+ " (" + GEOTAG_KEY_ID+ " integer primary key autoincrement, " 
 			+ GEOTAG_KEY_NAME+ " text not null, " 
-			+ GEOTAG_KEY_LONG + " double not null, "
-			+ GEOTAG_KEY_LAT + " double not null, "
+			+ GEOTAG_KEY_LONG + " real not null, "
+			+ GEOTAG_KEY_LAT + " real not null, "
 			+ GEOTAG_KEY_TYPE + " text not null, "
 			+ GEOTAG_KEY_PICPATH + " text not null, "
 			+ GEOTAG_KEY_TIME + " text not null, "
@@ -62,6 +62,7 @@ public class GeoTagTable {
 	 */
 	public static void onCreate(SQLiteDatabase database) {
 		Log.w("database","creating DB");
+		database.execSQL( DATABASE_DROP );
 		database.execSQL( DATABASE_CREATE );
 	}
 

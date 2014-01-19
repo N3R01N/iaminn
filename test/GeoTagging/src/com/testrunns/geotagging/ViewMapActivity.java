@@ -35,10 +35,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ViewMapActivity extends FragmentActivity implements OnInfoWindowClickListener {
-//public class ViewMapActivity extends FragmentActivity implements LoaderCallbacks<Cursor>, OnInfoWindowClickListener {
-	static final LatLng HAMBURG = new LatLng(53.558, 9.927);
-	static final LatLng KIEL = new LatLng(53.551, 9.993);
+public class ViewMapActivity extends FragmentActivity implements LoaderCallbacks<Cursor>, OnInfoWindowClickListener {
+
 	private GoogleMap map;
 	private ServletCaller servlet;
 	private GetXMLTask XMLservlet;
@@ -46,8 +44,7 @@ public class ViewMapActivity extends FragmentActivity implements OnInfoWindowCli
     TextView outputText;
     ImageView imageView;
     Button button1;
-    GeoTagOpenHelper openHelper;
-    List<GeoTag> geoTags;
+
     private static final int LOADER_ID = 1;
     public void switchActivity(View view){
         Intent intent = new Intent(this, AddGeoTagActivity.class);
@@ -61,11 +58,9 @@ public class ViewMapActivity extends FragmentActivity implements OnInfoWindowCli
 		outputText = (TextView) findViewById(R.id.textView);
 		imageView = (ImageView) findViewById(R.id.imageView);
 		button1 = (Button) findViewById(R.id.button1);
-		/*geoTags = new ArrayList<GeoTag>();
-		openHelper = new GeoTagOpenHelper(this);
-		geoTags = openHelper.getGeoTagFromCategory("1");
-		Log.d("wi11b031","wi11b031 size db:"+geoTags.size());
-		*/
+		
+		getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+
 		map = ((MapFragment)getFragmentManager().findFragmentById(R.id.map)).getMap();
 		map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		map.setOnInfoWindowClickListener(this);
@@ -74,45 +69,6 @@ public class ViewMapActivity extends FragmentActivity implements OnInfoWindowCli
 		button1.bringToFront();
 		imageView.setVisibility(View.INVISIBLE);
 		imageView.setOnClickListener(myhandler);
-		//getSupportLoaderManager().initLoader(LOADER_ID, null, this);
-		
-		 if (map!=null){
-			 
-			 
-			 //Log.d("wi11b031","wi11b031 " + servlet.getServletString());
-
-			 //Log.d("wi11b031","wi11b031 " + servlet.getServletString());
-	          Marker hamburg = map.addMarker(new MarkerOptions().position(HAMBURG)
-	              .title("Hamburg"));
-	          Marker kiel = map.addMarker(new MarkerOptions()
-	              .position(KIEL)
-	              .title("Kiel")
-	              .snippet("Kiel is cool<img src='http://www.colourbox.de/preview/1450780-303470-der-einsame-baum-isoliert-die-willow-ordinary.jpg' width='320' height='400' name='Baumbild' alt='Abendbaum'>")
-	              
-	              .icon(BitmapDescriptorFactory
-	                  .fromResource(R.drawable.ic_launcher)));
-	          
-	          map.moveCamera(CameraUpdateFactory.newLatLngZoom(HAMBURG, 15));
-	          map.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
-	         /* Uri uri = Uri.parse(GeoTagContentProvider.CONTENT_URI+"/geotag/"+AddGeoTagActivity.SHOW_ALL);
-	          getContentResolver().query(uri, null, null, null, null);*/
-	          //getSupportLoaderManager().initLoader(0, null, this);  
-	        }
-		// Move the camera instantly to hamburg with a zoom of 15.
-		
-
-		// Zoom in, animating the camera.
-		
-		/*
-	    map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
-	            .getMap();
-	        
-	       
-	        
-	        keytool -list -v -alias androiddebugkey \
-	        -keystore C:\Users\p\.android\debug.keystore \
-	        -storepass android -keypass android 
-	        */
 	}
 
 	@Override
@@ -150,29 +106,7 @@ public class ViewMapActivity extends FragmentActivity implements OnInfoWindowCli
 		  }
 
 		  protected void onPostExecute(Bitmap result) {
-			 // String mCurrentPhotoPath = "/sdcard/DCIM/Camera/1.jpg";
 			  imageView.setImageBitmap(result);
-			    /*int targetW = imageView.getWidth();
-			    int targetH = imageView.getHeight();
-
-			    // Get the dimensions of the bitmap
-			    BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-			    bmOptions.inJustDecodeBounds = true;
-			    BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-			    int photoW = bmOptions.outWidth;
-			    int photoH = bmOptions.outHeight;
-
-			    // Determine how much to scale down the image
-			    int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
-
-			    // Decode the image file into a Bitmap sized to fill the View
-			    bmOptions.inJustDecodeBounds = false;
-			    bmOptions.inSampleSize = scaleFactor;
-			    bmOptions.inPurgeable = true;
-			  Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
-			  File extStore = Environment.getExternalStorageDirectory();
-			  Log.d("wi11b031","wi11b031 pafd test" + bitmap + "   extstroe  " + extStore.getPath());
-			  imageView.setImageBitmap(bitmap);*/
 		  }
 		}
 	@Override
@@ -182,35 +116,57 @@ public class ViewMapActivity extends FragmentActivity implements OnInfoWindowCli
 	        .execute("http://mypics.at/d/1526-12/Wiese.jpg");
 		imageView.setVisibility(View.VISIBLE);
 		imageView.bringToFront();
-		/*DownloadImageTask dit = new DownloadImageTask(imageView);
-			url = new java.net.URL("");
-			Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-			imageView.setImageBitmap(bmp);*/
 	}
-/*
+
 	@Override
 	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
 		String[] projection = {GeoTagTable.GEOTAG_KEY_ID, GeoTagTable.GEOTAG_KEY_NAME,GeoTagTable.GEOTAG_KEY_LONG,GeoTagTable.GEOTAG_KEY_LAT,GeoTagTable.GEOTAG_KEY_TYPE, GeoTagTable.GEOTAG_KEY_PICPATH, GeoTagTable.GEOTAG_KEY_TIME, GeoTagTable.GEOTAG_KEY_EXTERNKEY};
-		Uri tempURI = Uri.parse(GeoTagContentProvider.CONTENT_URI+"/geotag/"+AddGeoTagActivity.SHOW_ALL);
-		//JokeContentProvider jokeCP = new JokeContentProvider();
-		// = new String[5];
-		CursorLoader cl = new CursorLoader(this, tempURI, projection, null, null, null);
-		//cl.setUri();
+		Uri tempURI = Uri.parse(GeoTagContentProvider.CONTENT_URI+"/type/"+AddGeoTagActivity.SHOW_ALL);
 
-		
+		CursorLoader cl = new CursorLoader(this, tempURI, projection, null, null, null);
+		Log.d("wi11b031","ende von onCreateLoader !"+arg1);
 		return cl;
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Cursor> arg0, Cursor arg1) {
-		Log.d("wi11b031","wi11b031 db "+arg1.getCount());
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		
+		Log.d("wi11b031","bin im onLoadFinished");
+		if (cursor != null){
+			cursor.moveToFirst();
+			do{
+				GeoTag g = null;
+
+				g = new GeoTag();
+				
+				g.setId(cursor.getInt(GeoTagTable.GEOTAG_COL_ID));
+				g.setName(cursor.getString(GeoTagTable.GEOTAG_COL_NAME));
+				g.setLatitude(cursor.getDouble(GeoTagTable.GEOTAG_COL_LAT));
+				g.setLongitude(cursor.getDouble(GeoTagTable.GEOTAG_COL_LONG));
+				g.setType(cursor.getInt(GeoTagTable.GEOTAG_COL_TYPE));
+				g.setPicpath(cursor.getString(GeoTagTable.GEOTAG_COL_PICPATH));
+				g.setTime(cursor.getString(GeoTagTable.GEOTAG_COL_TIME));
+				g.setExternalKey(cursor.getString(GeoTagTable.GEOTAG_COL_EXTERNKEY));
+				
+				
+				Log.w("wi11b031","GeoTag: " +g);
+				Log.w("wi11b031","---------------------------");
+				
+				LatLng pos = new LatLng(g.getLatitude(), g.getLongitude());
+				
+				 Marker test = map.addMarker(new MarkerOptions().position(pos)
+			              .title(g.getName()));
+				 map.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
+			}while(cursor.moveToNext());
+		}
+		
+		
 		
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> arg0) {
-		//m_jokeAdapter.swapCursor(null);
-		
-	}*/
+	public void onLoaderReset(Loader<Cursor> loader) {
+		Log.d("wi11b031","on Loader Reset");
+	}
 }
 

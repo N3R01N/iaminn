@@ -132,6 +132,7 @@ public class GeoTagContentProvider extends ContentProvider {
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
 		Log.d(TAG,"inserting: "+uri);
+		Log.w(TAG,"values: "+values);
 		
 		SQLiteDatabase db = database.getWritableDatabase();
 		
