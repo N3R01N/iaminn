@@ -14,13 +14,17 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 public class ServletCaller {
-	public static final String URL = "http://wi-gate.technikum-wien.at:60660/marker/getMarker";
+	public static final String URL = "http://wi-gate.technikum-wien.at:60660/marker/";
 	private String ServletString = "";
-	
+	private  GetXMLTask task;
 	
 	public ServletCaller() {
-        GetXMLTask task = new GetXMLTask();
-        task.execute(new String[] { URL });
+        task = new GetXMLTask();
+	}
+	
+	public void start(String befehl)
+	{
+        task.execute(new String[] { URL + befehl});
 	}
 	 
 	public void setServletString(String ServStr) {
