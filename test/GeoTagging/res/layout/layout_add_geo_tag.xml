@@ -12,7 +12,6 @@
             android:id="@+id/buttonTakePic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="onTakePictureButtonClick"
             android:text="@string/launch_camera_button" />
 
         <ImageView
@@ -33,7 +32,6 @@
             android:id="@+id/buttonSaveTag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="saveGeoTag"
             android:text="@string/save_tag_button" />
     </LinearLayout>
 

@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -14,21 +15,25 @@ import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.content.Intent;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ViewMapActivity extends FragmentActivity implements
+public class ViewMapActivity extends Fragment implements
 		LoaderCallbacks<Cursor>, OnInfoWindowClickListener {
 
 	private GoogleMap map;
@@ -36,51 +41,69 @@ public class ViewMapActivity extends FragmentActivity implements
 	public static final String URL = "http://wi-gate.technikum-wien.at:60660/marker/getMarker";
 	TextView outputText;
 	ImageView imageView;
-	Button button1;
 
 	private HashMap<Marker, GeoTag> geoTags;
 
 	private static final int LOADER_ID = 1;
 
-	public void switchActivity(View view) {
-		Intent intent = new Intent(this, AddGeoTagActivity.class);
-		startActivity(intent);
-	}
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_view_map);
-		outputText = (TextView) findViewById(R.id.textView);
-		imageView = (ImageView) findViewById(R.id.imageView);
-		button1 = (Button) findViewById(R.id.button1);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+		super.onCreateView(inflater, container, savedInstanceState);
+		View rootView = inflater.inflate(R.layout.activity_view_map, container, false);
+		outputText = (TextView) rootView.findViewById(R.id.textView);
+		imageView = (ImageView) rootView.findViewById(R.id.imageView);
 
 		geoTags = new HashMap<Marker, GeoTag>();
 
-		getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+		getActivity().getSupportLoaderManager().initLoader(LOADER_ID, null, this);
 
-		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
+		map = ((SupportMapFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.map))
 				.getMap();
 		map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		map.setOnInfoWindowClickListener(this);
 		XMLservlet = new GetXMLTask();
 		XMLservlet.execute(new String[] { URL }, this);
-		button1.bringToFront();
 		imageView.setVisibility(View.INVISIBLE);
 		imageView.setOnClickListener(myhandler);
+		return rootView;
 	}
 
 	public void onStart() {
 		super.onStart();
-		getSupportLoaderManager().restartLoader(LOADER_ID, null, this);
+		Log.e("Fragment","onStart!");
+		getActivity().getSupportLoaderManager().restartLoader(LOADER_ID, null, this);
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.view_map, menu);
-		return true;
+	public void onDestroyView(){
+		super.onDestroyView();
+		Log.e("Fragment","onDestroyView!");
 	}
+	public void onDetach(){
+		super.onDetach();
+		Log.e("Fragment","onDetach!");
+	}
+	public void onStop(){
+		
+		Log.e("Fragment","onStop!");
+		super.onStop();
+	}
+	public void onResume(){
+		super.onResume();
+		Log.e("Fragment","onResume!");
+	}
+	public void onHiddenChanged(boolean hidden){
+		super.onHiddenChanged(hidden);
+		Log.e("Fragment","onHiddenChanged:" +hidden);
+	}
+
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		// Inflate the menu; this adds items to the action bar if it is present.
+//		getMenuInflater().inflate(R.menu.view_map, menu);
+//		return true;
+//	}
 
 	View.OnClickListener myhandler = new View.OnClickListener() {
 		public void onClick(View v) {
@@ -113,7 +136,7 @@ public class ViewMapActivity extends FragmentActivity implements
 		Uri tempURI = Uri.parse(GeoTagContentProvider.CONTENT_URI + "/type/"
 				+ AddGeoTagActivity.SHOW_ALL);
 
-		CursorLoader cl = new CursorLoader(this, tempURI, projection, null,
+		CursorLoader cl = new CursorLoader(getActivity(), tempURI, projection, null,
 				null, null);
 		Log.d("wi11b031", "ende von onCreateLoader !" + arg1);
 		return cl;
@@ -158,9 +181,5 @@ public class ViewMapActivity extends FragmentActivity implements
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		Log.d("wi11b031", "on Loader Reset");
-	}
-
-	public void displayPic(byte[] pic) {
-
 	}
 }

@@ -23,10 +23,15 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -34,7 +39,7 @@ import android.widget.Toast;
 
 // newest!
 
-public class AddGeoTagActivity extends FragmentActivity implements
+public class AddGeoTagActivity extends Fragment implements
                 GooglePlayServicesClient.ConnectionCallbacks,
                 GooglePlayServicesClient.OnConnectionFailedListener {
         
@@ -59,40 +64,63 @@ public class AddGeoTagActivity extends FragmentActivity implements
         private TextView textViewLong;
         private EditText editTextGeoTagName;
         private EditText editTextGeoTagDescriptiton;
+        private Button buttonSaveTag;
+        private Button buttonTakePic;
 
         
 
-        protected void onStart() {
+        public void onStart() {
                 super.onStart();
+                Log.d("onStart", "starting mLocationClient!");
                 mLocationClient.connect();
         }
 
-        protected void onStop() {
+        public void onStop() {
                 Log.d("onStop", "stopping mLocationClient!");
                 mLocationClient.disconnect();
                 super.onStop();
         }
 
         @Override
-        protected void onCreate(Bundle savedInstanceState) {
-                super.onCreate(savedInstanceState);
-                setContentView(R.layout.layout_add_geo_tag);
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
+                super.onCreateView(inflater, container, savedInstanceState);
+                Log.d("onCreateView", "in der on create view");
+                View rootView = inflater.inflate(R.layout.layout_add_geo_tag, container, false);
 
-                mImageView = (ImageView) findViewById(R.id.imageViewPic);
-                textViewLat = (TextView) findViewById(R.id.textViewValueLat);
-                textViewLong = (TextView) findViewById(R.id.textViewValueLong);
-                editTextGeoTagName = (EditText) findViewById(R.id.editTextTagName);
-                editTextGeoTagDescriptiton = (EditText) findViewById(R.id.editTextTagDesc);
+                mImageView = (ImageView) rootView.findViewById(R.id.imageViewPic);
+                textViewLat = (TextView) rootView.findViewById(R.id.textViewValueLat);
+                textViewLong = (TextView) rootView.findViewById(R.id.textViewValueLong);
+                editTextGeoTagName = (EditText) rootView.findViewById(R.id.editTextTagName);
+                editTextGeoTagDescriptiton = (EditText) rootView.findViewById(R.id.editTextTagDesc);
+                buttonSaveTag = (Button) rootView.findViewById(R.id.buttonSaveTag);
+                buttonTakePic = (Button) rootView.findViewById(R.id.buttonTakePic);
+                
+                buttonSaveTag.setOnClickListener(new OnClickListener() {	
+					@Override
+					public void onClick(View view) {
+						saveGeoTag();	
+					}
+				});
+                
+                buttonTakePic.setOnClickListener(new OnClickListener() {	
+					@Override
+					public void onClick(View view) {
+						takePicture();	
+					}
+				});
 
-                mLocationClient = new LocationClient(this, this, this);
+                mLocationClient = new LocationClient(getActivity(), this, this);
+                Log.d("oncreate view",""+rootView);
+                return rootView;
         }
 
-        @Override
-        public boolean onCreateOptionsMenu(Menu menu) {
-                // Inflate the menu; this adds items to the action bar if it is present.
-                getMenuInflater().inflate(R.menu.camera, menu);
-                return true;
-        }
+//        @Override
+//        public boolean onCreateOptionsMenu(Menu menu) {
+//                // Inflate the menu; this adds items to the action bar if it is present.
+//                getMenuInflater().inflate(R.menu.camera, menu);
+//                return true;
+//        }
         
         //----------------------- Picture ------------------------------
         
@@ -115,13 +143,9 @@ public class AddGeoTagActivity extends FragmentActivity implements
 
         }
 
-        public void onTakePictureButtonClick(View view) {
-                takePicture(CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
-        }
-
-        private void takePicture(int requestCode) {
+        private void takePicture() {
                 Intent takePicIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if(takePicIntent.resolveActivity(getPackageManager()) != null){
+                if(takePicIntent.resolveActivity(getActivity().getPackageManager()) != null){
                         
                         File photoFile = null;
                         try {
@@ -131,7 +155,7 @@ public class AddGeoTagActivity extends FragmentActivity implements
                         }
                         if(photoFile != null){
                                 takePicIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-                                startActivityForResult(takePicIntent, requestCode);
+                                startActivityForResult(takePicIntent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
                         }
                         
                 }
@@ -139,7 +163,7 @@ public class AddGeoTagActivity extends FragmentActivity implements
         }
 
         private void displayImageThumbnail() {
-                Log.d("Bild", "in der displayImageThumbnail methode!");
+            Log.d("Bild", "in der displayImageThumbnail methode!");
                 // Get the dimensions of the View
             int targetW = mImageView.getWidth();
             int targetH = mImageView.getHeight();
@@ -164,11 +188,11 @@ public class AddGeoTagActivity extends FragmentActivity implements
         }
 
         @Override
-        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		public void onActivityResult(int requestCode, int resultCode, Intent data) {
                 super.onActivityResult(requestCode, resultCode, data);
                 switch (requestCode) {
                 case CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE:
-                        if (resultCode == RESULT_OK)
+                        if (resultCode == Activity.RESULT_OK)
                                 displayImageThumbnail();
                         break;
                 case CONNECTION_FAILURE_RESOLUTION_REQUEST:
@@ -221,7 +245,7 @@ public class AddGeoTagActivity extends FragmentActivity implements
         private boolean servicesConnected() {
                 // Check that Google Play services is available
                 int resultCode = GooglePlayServicesUtil
-                                .isGooglePlayServicesAvailable(this);
+                                .isGooglePlayServicesAvailable(getActivity());
 
                 // If Google Play services is available
                 if (ConnectionResult.SUCCESS == resultCode) {
@@ -235,7 +259,7 @@ public class AddGeoTagActivity extends FragmentActivity implements
                         int errorCode = resultCode;
                         // Get the error dialog from Google Play services
                         Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
-                                        errorCode, this, CONNECTION_FAILURE_RESOLUTION_REQUEST);
+                                        errorCode, getActivity(), CONNECTION_FAILURE_RESOLUTION_REQUEST);
 
                         // If Google Play services can provide an error dialog
                         if (errorDialog != null) {
@@ -244,7 +268,7 @@ public class AddGeoTagActivity extends FragmentActivity implements
                                 // Set the dialog in the DialogFragment
                                 errorFragment.setDialog(errorDialog);
                                 // Show the error dialog in the DialogFragment
-                                errorFragment.show(getSupportFragmentManager(),
+                                errorFragment.show(getActivity().getSupportFragmentManager(),
                                                 "Location Updates");
                         }
                 }
@@ -261,7 +285,7 @@ public class AddGeoTagActivity extends FragmentActivity implements
                 if (connectionResult.hasResolution()) {
                         try {
                                 // Start an Activity that tries to resolve the error
-                                connectionResult.startResolutionForResult(this,
+                                connectionResult.startResolutionForResult(getActivity(),
                                                 CONNECTION_FAILURE_RESOLUTION_REQUEST);
                                 /*
                                  * Thrown if Google Play services canceled the original
@@ -283,26 +307,26 @@ public class AddGeoTagActivity extends FragmentActivity implements
 
         private void showErrorDialog(int errorCode) {
                 ErrorDialogFragment error = new ErrorDialogFragment();
-                error.setDialog(new Dialog(getApplicationContext(), errorCode));
+                error.setDialog(new Dialog(getActivity().getApplicationContext(), errorCode));
 
         }
 
         @Override
         public void onConnected(Bundle dataBundle) {
-                Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Connected", Toast.LENGTH_SHORT).show();
                 getLocation();
 
         }
 
         @Override
         public void onDisconnected() {
-                Toast.makeText(this, "Disconnected. Please re-connect.",
+                Toast.makeText(getActivity(), "Disconnected. Please re-connect.",
                                 Toast.LENGTH_SHORT).show();
         }
 
         //----------------------------save Geo Tag------------------------------
         
-        public void saveGeoTag(View view) {
+        public void saveGeoTag() {
                 if (servicesConnected()) {
                         mCurrentLocation = mLocationClient.getLastLocation();
                         Log.d("LOCATION", "lang: " + mCurrentLocation.getLatitude()
@@ -318,7 +342,7 @@ public class AddGeoTagActivity extends FragmentActivity implements
                         }
                         
                         if(name.length()==0 || name == ""){
-                                Toast.makeText(this, "please enter a name for the tag", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getActivity(), "please enter a name for the tag", Toast.LENGTH_LONG).show();
                                 return;
                         } 
                         
@@ -326,6 +350,7 @@ public class AddGeoTagActivity extends FragmentActivity implements
                         editTextGeoTagName.setText("");
                         editTextGeoTagDescriptiton.setText("");
                         currentPhotoPath = null;
+                        mImageView = null;
                         addGeoTag(tag);
                 }
         }
@@ -342,7 +367,7 @@ public class AddGeoTagActivity extends FragmentActivity implements
                 cv.put(GeoTagTable.GEOTAG_KEY_PICPATH, tag.getPicpath());
                 cv.put(GeoTagTable.GEOTAG_KEY_EXTERNKEY, tag.getExternalKey());
                 
-                Uri idUri = getContentResolver().insert(uri, cv);
+                Uri idUri = getActivity().getContentResolver().insert(uri, cv);
                 
                 int id = Integer.parseInt(idUri.getLastPathSegment());
                 Log.d(TAG,"inserting returns id: "+id);
