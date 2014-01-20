@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpEntity;
@@ -16,7 +15,6 @@ import org.apache.http.util.EntityUtils;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 public class GetXMLTask extends AsyncTask<String, Void, String> {
 	ViewMapActivity caller;
@@ -76,6 +74,5 @@ public class GetXMLTask extends AsyncTask<String, Void, String> {
 	public void execute(String[] strings, ViewMapActivity viewMapActivity) {
 		this.execute(strings);
 		caller = viewMapActivity;
-		
 	}
 }

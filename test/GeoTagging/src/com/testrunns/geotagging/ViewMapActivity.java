@@ -1,24 +1,18 @@
 package com.testrunns.geotagging;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.MapFragment;
 
+import android.media.ThumbnailUtils;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -30,27 +24,29 @@ import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ViewMapActivity extends FragmentActivity implements LoaderCallbacks<Cursor>, OnInfoWindowClickListener {
+public class ViewMapActivity extends FragmentActivity implements
+		LoaderCallbacks<Cursor>, OnInfoWindowClickListener {
 
 	private GoogleMap map;
-	private ServletCaller servlet;
 	private GetXMLTask XMLservlet;
 	public static final String URL = "http://wi-gate.technikum-wien.at:60660/marker/getMarker";
-    TextView outputText;
-    ImageView imageView;
-    Button button1;
+	TextView outputText;
+	ImageView imageView;
+	Button button1;
 
-    private static final int LOADER_ID = 1;
-    public void switchActivity(View view){
-        Intent intent = new Intent(this, AddGeoTagActivity.class);
-        startActivity(intent);
-}
-    
+	private HashMap<Marker, GeoTag> geoTags;
+
+	private static final int LOADER_ID = 1;
+
+	public void switchActivity(View view) {
+		Intent intent = new Intent(this, AddGeoTagActivity.class);
+		startActivity(intent);
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -58,10 +54,13 @@ public class ViewMapActivity extends FragmentActivity implements LoaderCallbacks
 		outputText = (TextView) findViewById(R.id.textView);
 		imageView = (ImageView) findViewById(R.id.imageView);
 		button1 = (Button) findViewById(R.id.button1);
-		
+
+		geoTags = new HashMap<Marker, GeoTag>();
+
 		getSupportLoaderManager().initLoader(LOADER_ID, null, this);
 
-		map = ((MapFragment)getFragmentManager().findFragmentById(R.id.map)).getMap();
+		map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map))
+				.getMap();
 		map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		map.setOnInfoWindowClickListener(this);
 		XMLservlet = new GetXMLTask();
@@ -70,12 +69,11 @@ public class ViewMapActivity extends FragmentActivity implements LoaderCallbacks
 		imageView.setVisibility(View.INVISIBLE);
 		imageView.setOnClickListener(myhandler);
 	}
-	
-	public void onStart(){
+
+	public void onStart() {
 		super.onStart();
 		getSupportLoaderManager().restartLoader(LOADER_ID, null, this);
 	}
-	
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -83,68 +81,55 @@ public class ViewMapActivity extends FragmentActivity implements LoaderCallbacks
 		getMenuInflater().inflate(R.menu.view_map, menu);
 		return true;
 	}
-	
+
 	View.OnClickListener myhandler = new View.OnClickListener() {
-	    public void onClick(View v) {
-	    	if(v != null)
-	    		imageView.setVisibility(View.INVISIBLE);
-	    }
+		public void onClick(View v) {
+			if (v != null)
+				imageView.setVisibility(View.INVISIBLE);
+		}
 	};
 
-	private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-		  ImageView bmImage;
-
-		  public DownloadImageTask(ImageView bmImage) {
-		      this.bmImage = bmImage;
-		  }
-
-		  protected Bitmap doInBackground(String... urls) {
-		      String urldisplay = urls[0];
-		      Bitmap mIcon11 = null;
-		      try {
-		        InputStream in = new java.net.URL(urldisplay).openStream();
-		        mIcon11 = BitmapFactory.decodeStream(in);
-		      } catch (Exception e) {
-		          Log.e("Error", e.getMessage());
-		          e.printStackTrace();
-		      }
-		      return mIcon11;
-		  }
-
-		  protected void onPostExecute(Bitmap result) {
-			  imageView.setImageBitmap(result);
-		  }
-		}
 	@Override
 	public void onInfoWindowClick(Marker marker) {
-		java.net.URL url;
-		new DownloadImageTask((ImageView) findViewById(R.id.imageView))
-	        .execute("http://mypics.at/d/1526-12/Wiese.jpg");
-		imageView.setVisibility(View.VISIBLE);
-		imageView.bringToFront();
+		String picPath = geoTags.get(marker).getPicpath();
+		if (!picPath.equals(GeoTag.NO_PIC)) {
+			Bitmap pic = BitmapFactory.decodeFile(picPath);
+			Bitmap thumbnail = ThumbnailUtils.extractThumbnail(pic, 400, 400);
+			imageView.setImageBitmap(thumbnail);
+			imageView.setVisibility(View.VISIBLE);
+			imageView.bringToFront();
+
+		}
 	}
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
-		String[] projection = {GeoTagTable.GEOTAG_KEY_ID, GeoTagTable.GEOTAG_KEY_NAME,GeoTagTable.GEOTAG_KEY_LONG,GeoTagTable.GEOTAG_KEY_LAT,GeoTagTable.GEOTAG_KEY_TYPE, GeoTagTable.GEOTAG_KEY_PICPATH, GeoTagTable.GEOTAG_KEY_TIME, GeoTagTable.GEOTAG_KEY_EXTERNKEY};
-		Uri tempURI = Uri.parse(GeoTagContentProvider.CONTENT_URI+"/type/"+AddGeoTagActivity.SHOW_ALL);
+		String[] projection = { GeoTagTable.GEOTAG_KEY_ID,
+				GeoTagTable.GEOTAG_KEY_NAME, GeoTagTable.GEOTAG_KEY_LONG,
+				GeoTagTable.GEOTAG_KEY_LAT, GeoTagTable.GEOTAG_KEY_TYPE,
+				GeoTagTable.GEOTAG_KEY_PICPATH, GeoTagTable.GEOTAG_KEY_TIME,
+				GeoTagTable.GEOTAG_KEY_EXTERNKEY };
 
-		CursorLoader cl = new CursorLoader(this, tempURI, projection, null, null, null);
-		Log.d("wi11b031","ende von onCreateLoader !"+arg1);
+		Uri tempURI = Uri.parse(GeoTagContentProvider.CONTENT_URI + "/type/"
+				+ AddGeoTagActivity.SHOW_ALL);
+
+		CursorLoader cl = new CursorLoader(this, tempURI, projection, null,
+				null, null);
+		Log.d("wi11b031", "ende von onCreateLoader !" + arg1);
 		return cl;
 	}
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		
-		Log.d("wi11b031","bin im onLoadFinished");
-		if (cursor != null){
-			cursor.moveToFirst();
-			do{
+
+		Log.d("wi11b031", "bin im onLoadFinished" + cursor);
+
+		if (cursor != null && cursor.moveToFirst()) {
+			do {
 				GeoTag g = null;
 
 				g = new GeoTag();
-				
+
 				g.setId(cursor.getInt(GeoTagTable.GEOTAG_COL_ID));
 				g.setName(cursor.getString(GeoTagTable.GEOTAG_COL_NAME));
 				g.setLatitude(cursor.getDouble(GeoTagTable.GEOTAG_COL_LAT));
@@ -152,27 +137,30 @@ public class ViewMapActivity extends FragmentActivity implements LoaderCallbacks
 				g.setType(cursor.getInt(GeoTagTable.GEOTAG_COL_TYPE));
 				g.setPicpath(cursor.getString(GeoTagTable.GEOTAG_COL_PICPATH));
 				g.setTime(cursor.getString(GeoTagTable.GEOTAG_COL_TIME));
-				g.setExternalKey(cursor.getString(GeoTagTable.GEOTAG_COL_EXTERNKEY));
-				
-				
-				Log.w("wi11b031","GeoTag: " +g);
-				Log.w("wi11b031","---------------------------");
-				
+				g.setExternalKey(cursor
+						.getString(GeoTagTable.GEOTAG_COL_EXTERNKEY));
+
+				Log.w("wi11b031", "GeoTag: " + g);
+				Log.w("wi11b031", "---------------------------");
+
 				LatLng pos = new LatLng(g.getLatitude(), g.getLongitude());
-				
-				 Marker test = map.addMarker(new MarkerOptions().position(pos)
-			              .title(g.getName()));
-				 map.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
-			}while(cursor.moveToNext());
+
+				Marker test = map.addMarker(new MarkerOptions().position(pos)
+						.title(g.getName()));
+				map.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
+
+				geoTags.put(test, g);
+			} while (cursor.moveToNext());
 		}
-		
-		
-		
+
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		Log.d("wi11b031","on Loader Reset");
+		Log.d("wi11b031", "on Loader Reset");
+	}
+
+	public void displayPic(byte[] pic) {
+
 	}
 }
-

@@ -3,12 +3,12 @@ package com.testrunns.geotagging;
 import android.util.Log;
 
 public class GeoTag {
-	
+
 	private static final String TAG = "GeoTag";
-	
+
 	public static final String NEW_TAG = "new";
 	public static final String NO_PIC = "noPic";
-	
+
 	private int id;
 	private String name;
 	private double longitude;
@@ -18,10 +18,10 @@ public class GeoTag {
 	private String text;
 	private String time;
 	private String externalKey;
-	
-	public GeoTag(){
+
+	public GeoTag() {
 		id = 0;
-		name ="unknown";
+		name = "unknown";
 		longitude = 0;
 		latitude = 0;
 		type = 0;
@@ -29,8 +29,9 @@ public class GeoTag {
 		time = "unknown";
 		externalKey = "unknown";
 	}
-	
-	public GeoTag(String name, double lo, double la, int type, String text, String pic){
+
+	public GeoTag(String name, double lo, double la, int type, String text,
+			String pic) {
 		id = 0;
 		this.name = name;
 		longitude = lo;
@@ -39,7 +40,7 @@ public class GeoTag {
 		picpath = pic;
 		time = NEW_TAG;
 		externalKey = NEW_TAG;
-		Log.w(TAG,"new geotag");
+		Log.w(TAG, "new geotag");
 	}
 
 	public int getId() {
@@ -85,7 +86,7 @@ public class GeoTag {
 	public String getPicpath() {
 		return picpath;
 	}
-	
+
 	public String getText() {
 		return text;
 	}
@@ -101,7 +102,7 @@ public class GeoTag {
 	public void setTime(String time) {
 		this.time = time;
 	}
-	
+
 	public void setText(String text) {
 		this.text = text;
 	}
@@ -113,19 +114,15 @@ public class GeoTag {
 	public void setExternalKey(String externalKey) {
 		this.externalKey = externalKey;
 	}
-	
-	public String toString(){
-		return "id: "+id
-				+"\nname: "+name
-				+"\nlong: "+longitude
-				+"\nlat: "+latitude
-				+"\ntype: "+type
-				+"\npic path: "+picpath
-				+"\nexternal id: "+externalKey;
+
+	public String toString() {
+		return "id: " + id + "\nname: " + name + "\nlong: " + longitude
+				+ "\nlat: " + latitude + "\ntype: " + type + "\npic path: "
+				+ picpath + "\nexternal id: " + externalKey;
 	}
-	
-	public boolean equals(Object obj){
-		if(obj instanceof GeoTag){
+
+	public boolean equals(Object obj) {
+		if (obj instanceof GeoTag) {
 			return this.getExternalKey() == ((GeoTag) obj).getExternalKey();
 		}
 		return false;

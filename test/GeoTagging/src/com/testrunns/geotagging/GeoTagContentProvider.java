@@ -12,9 +12,9 @@ import android.net.Uri;
 import android.util.Log;
 
 public class GeoTagContentProvider extends ContentProvider {
-	
+
 	private static final String TAG = "GeoTagContentProvider";
-	
+
 	/** The geotag database. */
 	private GeoTagOpenHelper database;
 
@@ -52,48 +52,49 @@ public class GeoTagContentProvider extends ContentProvider {
 		sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/type/#", GEOTAG_TYPE);
 		sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/sync/#", GEOTAG_SYNC);
 	}
-	
+
 	@Override
 	public boolean onCreate() {
 		database = new GeoTagOpenHelper(getContext());
 		return true;
 	}
-	
+
 	@Override
-	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
-			String sortOrder) {
-		
-		Log.d("wi11b031","wi11b031 uri: " + uri);
+	public Cursor query(Uri uri, String[] projection, String selection,
+			String[] selectionArgs, String sortOrder) {
+
+		Log.d("wi11b031", "wi11b031 uri: " + uri);
 		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-		
+
 		checkColumns(projection);
-		
+
 		builder.setTables(GeoTagTable.DATABASE_TABLE_GEOTAG);
-		
+
 		int uriType = sURIMatcher.match(uri);
-		
+
 		switch (uriType) {
 		case GEOTAG_TYPE:
-			
+
 			String type = uri.getLastPathSegment();
-			Log.d("wi11b031","wi11b031 type: " + type);
-			if(!type.equals(AddGeoTagActivity.SHOW_ALL)){
+			Log.d("wi11b031", "wi11b031 type: " + type);
+			if (!type.equals(AddGeoTagActivity.SHOW_ALL)) {
 				builder.appendWhere(GeoTagTable.GEOTAG_KEY_TYPE + "=" + type);
-			}
-			else{
+			} else {
 				selection = null;
 			}
-			
+
 			break;
 		case GEOTAG_SYNC:
-			builder.appendWhere(GeoTagTable.GEOTAG_COL_EXTERNKEY+ "=" + GeoTag.NEW_TAG);
+			builder.appendWhere(GeoTagTable.GEOTAG_COL_EXTERNKEY + "="
+					+ GeoTag.NEW_TAG);
 
 		default:
 			throw new IllegalArgumentException("Unknown URI: " + uri);
 		}
-		
+
 		SQLiteDatabase db = database.getWritableDatabase();
-		Cursor cursor = builder.query(db, projection, selection, null, null, null, null);
+		Cursor cursor = builder.query(db, projection, selection, null, null,
+				null, null);
 		cursor.setNotificationUri(getContext().getContentResolver(), uri);
 		return cursor;
 
@@ -101,25 +102,27 @@ public class GeoTagContentProvider extends ContentProvider {
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		Log.d(TAG,"delete: "+uri);
-		
+		Log.d(TAG, "delete: " + uri);
+
 		SQLiteDatabase db = database.getWritableDatabase();
-		
+
 		int count = 0;
-		
+
 		int uriType = sURIMatcher.match(uri);
-		
+
 		switch (uriType) {
 		case GEOTAG_ID:
 			String deleteId = uri.getLastPathSegment();
-			count = db.delete(GeoTagTable.DATABASE_TABLE_GEOTAG, GeoTagTable.GEOTAG_KEY_ID + "=" + deleteId, null);
+			count = db.delete(GeoTagTable.DATABASE_TABLE_GEOTAG,
+					GeoTagTable.GEOTAG_KEY_ID + "=" + deleteId, null);
 			break;
 
 		default:
 			throw new IllegalArgumentException("Unknown URI: " + uri);
 		}
-		
-		if(count > 0) getContext().getContentResolver().notifyChange(uri, null);
+
+		if (count > 0)
+			getContext().getContentResolver().notifyChange(uri, null);
 		return count;
 	}
 
@@ -131,15 +134,15 @@ public class GeoTagContentProvider extends ContentProvider {
 
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
-		Log.d(TAG,"inserting: "+uri);
-		Log.w(TAG,"values: "+values);
-		
+		Log.d(TAG, "inserting: " + uri);
+		Log.w(TAG, "values: " + values);
+
 		SQLiteDatabase db = database.getWritableDatabase();
-		
+
 		long id = 0;
-		
+
 		int uriType = sURIMatcher.match(uri);
-		
+
 		switch (uriType) {
 		case GEOTAG_ID:
 			id = db.insert(GeoTagTable.DATABASE_TABLE_GEOTAG, null, values);
@@ -148,38 +151,39 @@ public class GeoTagContentProvider extends ContentProvider {
 		default:
 			throw new IllegalArgumentException("Unknown URI: " + uri);
 		}
-		
+
 		getContext().getContentResolver().notifyChange(uri, null);
-		
-		return Uri.parse(BASE_PATH+"/"+id);
+
+		return Uri.parse(BASE_PATH + "/" + id);
 	}
 
-	
-
 	@Override
-	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		Log.d(TAG,"update: "+uri);
-		
+	public int update(Uri uri, ContentValues values, String selection,
+			String[] selectionArgs) {
+		Log.d(TAG, "update: " + uri);
+
 		SQLiteDatabase db = database.getWritableDatabase();
-		
+
 		int count = 0;
-		
+
 		int uriType = sURIMatcher.match(uri);
-		
+
 		switch (uriType) {
 		case GEOTAG_ID:
 			String updateId = uri.getLastPathSegment();
-			count = db.update(GeoTagTable.DATABASE_TABLE_GEOTAG, values, GeoTagTable.GEOTAG_KEY_ID + "=" + updateId, null);
+			count = db.update(GeoTagTable.DATABASE_TABLE_GEOTAG, values,
+					GeoTagTable.GEOTAG_KEY_ID + "=" + updateId, null);
 			break;
 
 		default:
 			throw new IllegalArgumentException("Unknown URI: " + uri);
 		}
-		
-		if(count > 0) getContext().getContentResolver().notifyChange(uri, null);
+
+		if (count > 0)
+			getContext().getContentResolver().notifyChange(uri, null);
 		return count;
 	}
-	
+
 	/**
 	 * Verifies the correct set of columns to return data from when performing a
 	 * query.
@@ -188,9 +192,11 @@ public class GeoTagContentProvider extends ContentProvider {
 	 *            The set of columns about to be queried.
 	 */
 	private void checkColumns(String[] projection) {
-		String[] available = { GeoTagTable.GEOTAG_KEY_ID, GeoTagTable.GEOTAG_KEY_NAME,
-				GeoTagTable.GEOTAG_KEY_LONG, GeoTagTable.GEOTAG_KEY_LAT, GeoTagTable.GEOTAG_KEY_TYPE,
-				GeoTagTable.GEOTAG_KEY_PICPATH, GeoTagTable.GEOTAG_KEY_TIME, GeoTagTable.GEOTAG_KEY_EXTERNKEY};
+		String[] available = { GeoTagTable.GEOTAG_KEY_ID,
+				GeoTagTable.GEOTAG_KEY_NAME, GeoTagTable.GEOTAG_KEY_LONG,
+				GeoTagTable.GEOTAG_KEY_LAT, GeoTagTable.GEOTAG_KEY_TYPE,
+				GeoTagTable.GEOTAG_KEY_PICPATH, GeoTagTable.GEOTAG_KEY_TIME,
+				GeoTagTable.GEOTAG_KEY_EXTERNKEY };
 
 		if (projection != null) {
 			HashSet<String> requestedColumns = new HashSet<String>(
