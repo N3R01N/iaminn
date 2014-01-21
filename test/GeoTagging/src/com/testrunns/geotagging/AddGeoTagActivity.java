@@ -24,10 +24,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -85,7 +83,6 @@ public class AddGeoTagActivity extends Fragment implements
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
                 super.onCreateView(inflater, container, savedInstanceState);
-                Log.d("onCreateView", "in der on create view");
                 View rootView = inflater.inflate(R.layout.layout_add_geo_tag, container, false);
 
                 mImageView = (ImageView) rootView.findViewById(R.id.imageViewPic);
@@ -114,13 +111,6 @@ public class AddGeoTagActivity extends Fragment implements
                 Log.d("oncreate view",""+rootView);
                 return rootView;
         }
-
-//        @Override
-//        public boolean onCreateOptionsMenu(Menu menu) {
-//                // Inflate the menu; this adds items to the action bar if it is present.
-//                getMenuInflater().inflate(R.menu.camera, menu);
-//                return true;
-//        }
         
         //----------------------- Picture ------------------------------
         
@@ -140,7 +130,6 @@ public class AddGeoTagActivity extends Fragment implements
             currentPhotoPath =  image.getAbsolutePath();
             Log.d(TAG,"path:" +currentPhotoPath);
             return image;
-
         }
 
         private void takePicture() {
@@ -355,7 +344,8 @@ public class AddGeoTagActivity extends Fragment implements
                 }
         }
         
-        private void addGeoTag(GeoTag tag) {
+        public void addGeoTag(GeoTag tag) {
+        		Log.d("test",""+tag);
                 Uri uri = Uri.parse(GeoTagContentProvider.CONTENT_URI+"/geotag/"+tag.getId());
                 Log.d(TAG,"uri: "+uri);
                 ContentValues cv = new ContentValues();

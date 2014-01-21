@@ -1,5 +1,6 @@
 package com.testrunns.geotagging;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -8,6 +9,9 @@ import java.util.List;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.util.Xml;
 
@@ -19,9 +23,11 @@ public class XMLParser {
 	private static final String Name = "name";
 	private static final String Lon = "lon";
 	private static final String Lat = "lat";
+	private static final String Type = "type";
 	private static final String Text = "text";
 	private static final String Picpath = "picpath";
 	private static final String ExternalKey = "externalkey";
+	private static final String Time = "time";
     public List<GeoTag> parse(InputStream in) throws XmlPullParserException, IOException {
         try {
             XmlPullParser parser = Xml.newPullParser();
@@ -49,7 +55,6 @@ public class XMLParser {
                 skip(parser);
             }
         }  
-        Log.d("wi11b031","wi11b031 size" + entries.size());
         return entries;
     }
     
@@ -59,8 +64,9 @@ public class XMLParser {
     // to their respective "read" methods for processing. Otherwise, skips the tag.
     private GeoTag readGeoTag(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, ns, "Marker");
-        int id, type = 1;
-        String name = null, text = null, picpath = null, externalkey = null;
+        int id = 0, type = 1;
+        String name = null, text = null, picpath = null, time = null;
+        Bitmap pic;
         double lon = 0, lat = 0;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -75,19 +81,20 @@ public class XMLParser {
             	lon = readLongitude(parser);
             } else if (parsername.equals(Lat)) {
                 lat = readLatitude(parser);
-            } else if (parsername.equals("type")) {
+            } else if (parsername.equals(Type)) {
                 type = readType(parser);
             } else if (parsername.equals(Text)) {
                 text = readText(parser);
             } else if (parsername.equals(Picpath)) {
-            	picpath = readPicpath(parser);
-            } else if (parsername.equals(ExternalKey)) {
-            	externalkey = readExternalKey(parser);
+            	pic = readPicpath(parser);
+            } else if (parsername.equals(Time)) {
+            	time = readTime(parser);
             }else {
                 skip(parser);
             }
         }
-        return new GeoTag(name, lon, lat, type, text, picpath);
+        //TODO no_pic ausbessern für das echte bild nur zum test!
+        return new GeoTag(id, name, lon, lat, type, text, GeoTag.NO_PIC, time);
     }
 
     private int readID(XmlPullParser parser) throws IOException, XmlPullParserException {
@@ -126,20 +133,41 @@ public class XMLParser {
         parser.require(XmlPullParser.END_TAG, ns, Text);
         return title;
     }
-    private String readPicpath(XmlPullParser parser) throws IOException, XmlPullParserException {
+    private Bitmap readPicpath(XmlPullParser parser) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, ns, Picpath);
         String title = readTextHelper(parser);
+        BitmapFactory.Options bmo = new BitmapFactory.Options();
+        bmo.inPreferredConfig = Config.ARGB_8888;
+        byte[] byteArray = new byte[title.length()];
+        Log.d("wi11b031","wi11b031 here");
+        for(int i=0; i < title.length();i++)
+        {
+        	//Log.d("wi11b031","wi11b031 char+ " + title.getBytes(title).toString());
+        	byteArray[i] = (byte)title.charAt(i);
+        	
+        }
+        Log.d("wi11b031","wi11b031 char+ " + byteArray);
         parser.require(XmlPullParser.END_TAG, ns, Picpath);
-        return title;
+        Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length,bmo);
+        Log.d("wi11b031","wi11b031 asgfd+ " + BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length,bmo));
+        if(bitmap != null) 
+        {
+            Log.d("wi11b031","wi11b031 asgfd+ ");// + BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length,bmo));
+            
+        	
+        }
+        return bitmap;
     }
-    private String readExternalKey(XmlPullParser parser) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, ns, ExternalKey);
+    
+    private String readTime(XmlPullParser parser) throws IOException, XmlPullParserException {
+        parser.require(XmlPullParser.START_TAG, ns, Time);
         String title = readTextHelper(parser);
-        parser.require(XmlPullParser.END_TAG, ns, ExternalKey);
+        parser.require(XmlPullParser.END_TAG, ns, Time);
         return title;
     }
     
     
+
     //Hilfsmethode
     private String readTextHelper(XmlPullParser parser) throws IOException, XmlPullParserException {
         String result = "";

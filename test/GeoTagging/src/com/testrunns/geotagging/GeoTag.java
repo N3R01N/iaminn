@@ -1,5 +1,10 @@
 package com.testrunns.geotagging;
 
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import android.util.Log;
 
 public class GeoTag {
@@ -8,6 +13,8 @@ public class GeoTag {
 
 	public static final String NEW_TAG = "new";
 	public static final String NO_PIC = "noPic";
+	
+	public static final DateFormat df = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
 
 	private int id;
 	private String name;
@@ -16,18 +23,18 @@ public class GeoTag {
 	private int type;
 	private String picpath;
 	private String text;
-	private String time;
+	private Date time;
 	private String externalKey;
 
-	public GeoTag() {
+	public GeoTag() throws ParseException {
 		id = 0;
 		name = "unknown";
 		longitude = 0;
 		latitude = 0;
 		type = 0;
 		picpath = "unknown";
-		time = "unknown";
-		externalKey = "unknown";
+		time = new Date(0);
+		externalKey = NEW_TAG;
 	}
 
 	public GeoTag(String name, double lo, double la, int type, String text,
@@ -38,9 +45,22 @@ public class GeoTag {
 		latitude = la;
 		this.type = type;
 		picpath = pic;
-		time = NEW_TAG;
+		time = new Date(0);
 		externalKey = NEW_TAG;
 		Log.w(TAG, "new geotag");
+	}
+	
+	public GeoTag(int id, String name, double lo, double la, int type, String text,
+			String pic, String time){
+		id = 0;
+		this.name = name;
+		longitude = lo;
+		latitude = la;
+		this.type = type;
+		picpath = pic;
+		setTime(time);
+		this.externalKey = ""+id;
+		Log.w(TAG, "new geotag, new constructor"+this);
 	}
 
 	public int getId() {
@@ -96,11 +116,15 @@ public class GeoTag {
 	}
 
 	public String getTime() {
-		return time;
+		return df.format(time);
 	}
 
 	public void setTime(String time) {
-		this.time = time;
+		try {
+			this.time =  (Date) df.parse(time);
+		} catch (ParseException e) {
+			Log.e("GeoTag","failed to parse date!");
+		}	
 	}
 
 	public void setText(String text) {
@@ -118,7 +142,7 @@ public class GeoTag {
 	public String toString() {
 		return "id: " + id + "\nname: " + name + "\nlong: " + longitude
 				+ "\nlat: " + latitude + "\ntype: " + type + "\npic path: "
-				+ picpath + "\nexternal id: " + externalKey;
+				+ picpath + "\nexternal id: " + externalKey + "\ndate: " + time;
 	}
 
 	public boolean equals(Object obj) {

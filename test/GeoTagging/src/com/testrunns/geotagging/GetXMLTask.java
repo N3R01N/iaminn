@@ -15,10 +15,11 @@ import org.apache.http.util.EntityUtils;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 public class GetXMLTask extends AsyncTask<String, Void, String> {
-	ViewMapActivity caller;
 	XMLParser parser = new XMLParser();
+	SyncListener listener;
 	@Override
     protected String doInBackground(String... urls) {
         String output = null;
@@ -50,22 +51,28 @@ public class GetXMLTask extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String output) {
     	InputStream stream;
-    	List<GeoTag> geoTagList;
+    	List<GeoTag> geoTagList = null;
     	try {
 			stream = new ByteArrayInputStream(output.getBytes("UTF-8"));
 			try {
 				geoTagList = parser.parse(stream);
-				if(geoTagList != null)
-					caller.outputText.setText(geoTagList.get(1).getName());
-					caller.outputText.bringToFront();
+				if(geoTagList != null && geoTagList.size() > 0){
+					listener.syncHasResult(geoTagList);
+				}
+				else{
+					listener.syncHasNoResult();
+				}
+					
 			} catch (XmlPullParserException e) {
-				// TODO Auto-generated catch block
+				Log.w("GetXmlTask","pullperserEcxeption");
 				e.printStackTrace();
 			} catch (IOException e) {
+				Log.w("GetXmlTask","IOException");
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} catch (UnsupportedEncodingException e1) {
+			Log.w("GetXmlTask","UnsupportedEncodingException");
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
@@ -73,6 +80,14 @@ public class GetXMLTask extends AsyncTask<String, Void, String> {
 
 	public void execute(String[] strings, ViewMapActivity viewMapActivity) {
 		this.execute(strings);
-		caller = viewMapActivity;
+	}
+	
+	public void setSyncListener(SyncListener listener){
+		this.listener = listener;
+	}
+	
+	public static interface SyncListener{
+		void syncHasResult(List<GeoTag> tags);
+		void syncHasNoResult();
 	}
 }

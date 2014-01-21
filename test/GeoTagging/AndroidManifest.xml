@@ -39,18 +39,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-   <!-- 
-      <activity
-            android:name="com.testrunns.geotagging.AddGeoTagActivity"
-            android:label="@string/app_name" >  
-        </activity>
-
-        <activity
-            android:name="com.testrunns.geotagging.ViewMapActivity"
-            android:label="@string/title_activity_view_map" >
-        </activity>
-   
-    -->
+ 
+        <service android:name="com.testrunns.geotagging.GeoTagSyncService"></service>
      
         
         <provider

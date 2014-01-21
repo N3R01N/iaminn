@@ -45,7 +45,7 @@ public class GeoTagTable {
 			+ GEOTAG_KEY_LAT + " real not null, "
 			+ GEOTAG_KEY_TYPE + " text not null, "
 			+ GEOTAG_KEY_PICPATH + " text not null, "
-			+ GEOTAG_KEY_TIME + " text not null, "
+			+ GEOTAG_KEY_TIME + " datetime not null, "
 			+ GEOTAG_KEY_EXTERNKEY + " text not null);";
 
 	/**

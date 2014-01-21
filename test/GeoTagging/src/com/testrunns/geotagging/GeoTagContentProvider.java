@@ -22,6 +22,7 @@ public class GeoTagContentProvider extends ContentProvider {
 	private static final int GEOTAG_ID = 1;
 	private static final int GEOTAG_TYPE = 2;
 	private static final int GEOTAG_SYNC = 3;
+	private static final int SERVER_SYNC = 4;
 
 	/** The authority for this content provider. */
 	private static final String AUTHORITY = "com.testrunns.geotagging.contentprovider";
@@ -51,6 +52,7 @@ public class GeoTagContentProvider extends ContentProvider {
 		sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/geotag/#", GEOTAG_ID);
 		sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/type/#", GEOTAG_TYPE);
 		sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/sync/#", GEOTAG_SYNC);
+		sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/sync/#", SERVER_SYNC);
 	}
 
 	@Override
@@ -62,8 +64,9 @@ public class GeoTagContentProvider extends ContentProvider {
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
+		
+		Log.d("contentPorvider","uri:"+uri);
 
-		Log.d("wi11b031", "wi11b031 uri: " + uri);
 		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 
 		checkColumns(projection);
@@ -71,12 +74,13 @@ public class GeoTagContentProvider extends ContentProvider {
 		builder.setTables(GeoTagTable.DATABASE_TABLE_GEOTAG);
 
 		int uriType = sURIMatcher.match(uri);
+		
+		Log.e("contentProvider",""+uriType);
 
 		switch (uriType) {
 		case GEOTAG_TYPE:
 
 			String type = uri.getLastPathSegment();
-			Log.d("wi11b031", "wi11b031 type: " + type);
 			if (!type.equals(AddGeoTagActivity.SHOW_ALL)) {
 				builder.appendWhere(GeoTagTable.GEOTAG_KEY_TYPE + "=" + type);
 			} else {
@@ -85,16 +89,21 @@ public class GeoTagContentProvider extends ContentProvider {
 
 			break;
 		case GEOTAG_SYNC:
-			builder.appendWhere(GeoTagTable.GEOTAG_COL_EXTERNKEY + "="
+			builder.appendWhere(GeoTagTable.GEOTAG_KEY_EXTERNKEY + "="
 					+ GeoTag.NEW_TAG);
+			break;
+		case SERVER_SYNC:
+			sortOrder = GeoTagTable.GEOTAG_KEY_TIME + " DESC";
+			Log.d("contentprovider","richtig!"+builder.toString());
+			break;
 
 		default:
-			throw new IllegalArgumentException("Unknown URI: " + uri);
+			throw new IllegalArgumentException("Unknown - URI: " + uri);
 		}
 
 		SQLiteDatabase db = database.getWritableDatabase();
 		Cursor cursor = builder.query(db, projection, selection, null, null,
-				null, null);
+				null, sortOrder);
 		cursor.setNotificationUri(getContext().getContentResolver(), uri);
 		return cursor;
 
@@ -102,8 +111,6 @@ public class GeoTagContentProvider extends ContentProvider {
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		Log.d(TAG, "delete: " + uri);
-
 		SQLiteDatabase db = database.getWritableDatabase();
 
 		int count = 0;
@@ -134,8 +141,6 @@ public class GeoTagContentProvider extends ContentProvider {
 
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
-		Log.d(TAG, "inserting: " + uri);
-		Log.w(TAG, "values: " + values);
 
 		SQLiteDatabase db = database.getWritableDatabase();
 
@@ -160,7 +165,6 @@ public class GeoTagContentProvider extends ContentProvider {
 	@Override
 	public int update(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
-		Log.d(TAG, "update: " + uri);
 
 		SQLiteDatabase db = database.getWritableDatabase();
 
