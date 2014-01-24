@@ -128,7 +128,7 @@ public class GeoTag {
 		try {
 			this.time =  (Date) df.parse(time);
 		} catch (ParseException e) {
-			Log.e("GeoTag","failed to parse date!");
+			Log.e("GeoTag","failed to parse date! "+time);
 		}	
 	}
 

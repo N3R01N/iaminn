@@ -94,7 +94,7 @@ public class AddImageTask extends AsyncTask<GeoTag, Void, String>{
     if (!picPath.equals(GeoTag.NO_PIC)) {
      Bitmap pic = BitmapFactory.decodeFile(picPath);         
           ByteArrayOutputStream stream = new ByteArrayOutputStream();
-          pic.compress(Bitmap.CompressFormat.JPEG, 100, stream); //compress to which format you want.
+          pic.compress(Bitmap.CompressFormat.JPEG, 30, stream); //compress to which format you want.
           byte [] byte_arr = stream.toByteArray();
           String image_str = Base64.encodeToString(byte_arr, Base64.DEFAULT);
           Log.d("wi11b031","wi11b031 image:"+image_str.length());
