@@ -56,7 +56,7 @@ public class GetXMLTask extends AsyncTask<String, Void, String> {
 			stream = new ByteArrayInputStream(output.getBytes("UTF-8"));
 			try {
 				geoTagList = parser.parse(stream);
-				if(geoTagList != null && geoTagList.size() > 0){
+				if(geoTagList != null && geoTagList.size() > 0 ){
 					listener.syncHasResult(geoTagList);
 				}
 				else{

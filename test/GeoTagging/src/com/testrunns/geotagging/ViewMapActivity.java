@@ -2,7 +2,6 @@ package com.testrunns.geotagging;
 
 import java.text.ParseException;
 import java.util.HashMap;
-import java.util.List;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -15,12 +14,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.app.Activity;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -40,7 +38,6 @@ public class ViewMapActivity extends Fragment implements
 	
 	TextView outputText;
 	ImageView imageView;
-	LoaderManager mLoaderManager;
 
 	private HashMap<Marker, GeoTag> geoTags;
 
@@ -57,34 +54,23 @@ public class ViewMapActivity extends Fragment implements
 
 		geoTags = new HashMap<Marker, GeoTag>();
 
-		mLoaderManager = getActivity().getSupportLoaderManager();
-		mLoaderManager.initLoader(LOADER_ID, null, this);
-		
-
 		map = ((SupportMapFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.map))
 				.getMap();
 		map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		map.setOnInfoWindowClickListener(this);
+		map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(48.2083, 16.3731), 10));
 		imageView.setVisibility(View.INVISIBLE);
 		imageView.setOnClickListener(myhandler);
 		Log.e("ViewMapActivity", "onCreateView fertig!");
 		return rootView;
 	}
 
-	public void restartLoader(){
-		if(mLoaderManager != null){
-			Log.e("ViewMapActivity", "mLoaderManager != null");
-			mLoaderManager.getLoader(LOADER_ID).onContentChanged();
-		}
-		else Log.e("ViewMapActivity", "mLoaderManager = null");
-		
-		
-	}
-
 	View.OnClickListener myhandler = new View.OnClickListener() {
 		public void onClick(View v) {
 			if (v != null)
 				imageView.setVisibility(View.INVISIBLE);
+				Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+				bitmap.recycle();
 		}
 	};
 	
@@ -96,6 +82,7 @@ public class ViewMapActivity extends Fragment implements
 	public void onStart(){
 		super.onStart();
 		Log.i("CallBackMethods","onStart");
+		getActivity().getSupportLoaderManager().initLoader(LOADER_ID, null, this);
 	}
 	
 	public void onResume(){
@@ -105,18 +92,19 @@ public class ViewMapActivity extends Fragment implements
 
 	@Override
 	public void onInfoWindowClick(Marker marker) {
+		getActivity().getSupportLoaderManager().restartLoader(LOADER_ID, null, this);
+		
 		GeoTag tag = geoTags.get(marker);
 		String picPath = tag.getPicpath();
 		LatLng pos = new LatLng(tag.getLatitude(), tag.getLongitude());
-		restartLoader();
 		if (!picPath.equals(GeoTag.NO_PIC)) {
+			Log.w("onInfoWindow","path:"+picPath);
 			Bitmap pic = BitmapFactory.decodeFile(picPath);
-			Bitmap thumbnail = ThumbnailUtils.extractThumbnail(pic, 400, 400);
+			Bitmap thumbnail = ThumbnailUtils.extractThumbnail(pic, 400, 400);		
 			imageView.setImageBitmap(thumbnail);
 			imageView.setVisibility(View.VISIBLE);
 			imageView.bringToFront();
 			map.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
-
 		}
 	}
 
@@ -126,7 +114,7 @@ public class ViewMapActivity extends Fragment implements
 				GeoTagTable.GEOTAG_KEY_NAME, GeoTagTable.GEOTAG_KEY_LONG,
 				GeoTagTable.GEOTAG_KEY_LAT, GeoTagTable.GEOTAG_KEY_TYPE,
 				GeoTagTable.GEOTAG_KEY_PICPATH, GeoTagTable.GEOTAG_KEY_TIME,
-				GeoTagTable.GEOTAG_KEY_EXTERNKEY };
+				GeoTagTable.GEOTAG_KEY_EXTERNKEY, GeoTagTable.GEOTAG_KEY_TEXT };
 
 		Uri tempURI = Uri.parse(GeoTagContentProvider.CONTENT_URI + "/type/"
 				+ AddGeoTagActivity.SHOW_ALL);
@@ -139,7 +127,6 @@ public class ViewMapActivity extends Fragment implements
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-
 		if (cursor != null && cursor.moveToFirst()) {
 			do {
 				GeoTag g = null;
@@ -163,7 +150,7 @@ public class ViewMapActivity extends Fragment implements
 
 				Marker test = map.addMarker(new MarkerOptions().position(pos)
 						.title(g.getName()));
-				map.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
+				
 				
 				Log.w("view Geo Tag",""+g);
 
@@ -175,7 +162,6 @@ public class ViewMapActivity extends Fragment implements
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> arg0) {
-		Log.e("ViewMapActivity", "onLoaderReset!");
-		
+		Log.e("ViewMapActivity", "onLoaderReset!");		
 	}
 }

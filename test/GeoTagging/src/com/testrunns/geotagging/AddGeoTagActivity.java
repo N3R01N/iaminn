@@ -114,43 +114,25 @@ public class AddGeoTagActivity extends Fragment implements
 
 	// ----------------------- Picture ------------------------------
 
-	public File createImageFile() throws IOException {
-		// Create an image file name
-		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
-				.format(new Date());
-		String imageFileName = "JPEG_" + timeStamp + "_";
-		File storageDir = Environment
-				.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-		File image = File.createTempFile(imageFileName, /* prefix */
-				".jpg", /* suffix */
-				storageDir /* directory */
-		);
-
-		// Save a file: path for use with ACTION_VIEW intents
-		currentPhotoPath = image.getAbsolutePath();
-		Log.d(TAG, "path:" + currentPhotoPath);
-		return image;
-	}
-
 	private void takePicture() {
 		Intent takePicIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		if (takePicIntent.resolveActivity(getActivity().getPackageManager()) != null) {
 
 			File photoFile = null;
 			try {
-				photoFile = createImageFile();
+				photoFile = new FileCreator().createImageFile();
+				Log.i("TakePicture","file: "+photoFile);
 			} catch (IOException e) {
 				Log.d(TAG, "exception: " + e.getMessage());
 			}
 			if (photoFile != null) {
+				currentPhotoPath = photoFile.getAbsolutePath();
 				takePicIntent.putExtra(MediaStore.EXTRA_OUTPUT,
 						Uri.fromFile(photoFile));
 				startActivityForResult(takePicIntent,
 						CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
 			}
-
 		}
-
 	}
 
 	private void displayImageThumbnail() {
@@ -326,9 +308,11 @@ public class AddGeoTagActivity extends Fragment implements
 					+ " long: " + mCurrentLocation.getLongitude());
 
 			String name = editTextGeoTagName.getText().toString();
+			String text = editTextGeoTagDescriptiton.getText().toString();
 			double la = mCurrentLocation.getLatitude();
 			double lo = mCurrentLocation.getLongitude();
 			int type = 1;
+			Log.i("AddGeoTagActivity","saveGeoTag picPath = "+currentPhotoPath);
 			String pic = GeoTag.NO_PIC;
 			if (currentPhotoPath != null) {
 				pic = currentPhotoPath;
@@ -340,8 +324,14 @@ public class AddGeoTagActivity extends Fragment implements
 						.show();
 				return;
 			}
+			if (text.length() == 0 || text == "") {
+				Toast.makeText(getActivity(),
+						"please enter a description for the tag", Toast.LENGTH_LONG)
+						.show();
+				return;
+			}
 
-			GeoTag tag = new GeoTag(name, lo, la, type, "", pic);
+			GeoTag tag = new GeoTag(name, lo, la, type, text, pic);
 			editTextGeoTagName.setText("");
 			editTextGeoTagDescriptiton.setText("");
 			currentPhotoPath = null;
@@ -363,6 +353,7 @@ public class AddGeoTagActivity extends Fragment implements
 		cv.put(GeoTagTable.GEOTAG_KEY_TIME, tag.getTime());
 		cv.put(GeoTagTable.GEOTAG_KEY_PICPATH, tag.getPicpath());
 		cv.put(GeoTagTable.GEOTAG_KEY_EXTERNKEY, tag.getExternalKey());
+		cv.put(GeoTagTable.GEOTAG_KEY_TEXT, tag.getText());
 
 		Uri idUri = getActivity().getContentResolver().insert(uri, cv);
 
@@ -372,5 +363,6 @@ public class AddGeoTagActivity extends Fragment implements
 		Toast.makeText(getActivity(), "Geo Tag saved!", Toast.LENGTH_LONG)
 				.show();
 	}
+	
 
 }

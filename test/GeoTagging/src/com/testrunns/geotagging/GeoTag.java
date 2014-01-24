@@ -33,6 +33,7 @@ public class GeoTag {
 		latitude = 0;
 		type = 0;
 		picpath = "unknown";
+		text = "no description";
 		time = new Date(0);
 		externalKey = NEW_TAG;
 	}
@@ -47,6 +48,7 @@ public class GeoTag {
 		this.type = type;
 		picpath = pic;
 		time = new Date(0);
+		this.text = text;
 		externalKey = NEW_TAG;
 		Log.w(TAG, "new geotag");
 	}
@@ -60,6 +62,7 @@ public class GeoTag {
 		latitude = la;
 		this.type = type;
 		picpath = pic;
+		this.text = text;
 		setTime(time);
 		this.externalKey = ""+id;
 		Log.w(TAG, "new geotag, new constructor"+this);
@@ -142,7 +145,7 @@ public class GeoTag {
 	}
 
 	public String toString() {
-		return "id: " + id + "\nname: " + name + "\nlong: " + longitude
+		return "id: " + id + "\nname: " + name + "\ntext: " + text + "\nlong: " + longitude
 				+ "\nlat: " + latitude + "\ntype: " + type + "\npic path: "
 				+ picpath + "\nexternal id: " + externalKey + "\ndate: " + getTime();
 	}

@@ -31,37 +31,39 @@ public class AddImageTask extends AsyncTask<GeoTag, Void, String>{
  DefaultHttpClient httpClient;
  HttpPost post;
  HttpResponse response = null;
- List<GeoTag> tagsToUpload;
+ String output;
+ GeoTag tag;
+ SyncWithServerListener mListener;
+ 
+ 
  public AddImageTask() {
        //this.bmImage = bmImage;
     httpClient = new DefaultHttpClient();
     httpClient.getParams().setParameter(CoreProtocolPNames.USER_AGENT,
                 System.getProperty("http.agent"));
     nameValuePair = new ArrayList<NameValuePair>();
-    tagsToUpload = new ArrayList<GeoTag>();
    }
 
 
  private String upload_Geotag(String url) {
-  String urldisplay = url;
-  String output = null;
+  output = null;
+  Log.d("wi11b031","wi11b031 url: "+url);
   if(url != null)
         {   
          try {
              post = new HttpPost(url);
-             UrlEncodedFormEntity p_entity = new UrlEncodedFormEntity(nameValuePair,HTTP.UTF_8);
-             post.setEntity(p_entity);
              
-             for(int i = 0; i < nameValuePair.size(); i++) {
-             post.addHeader(nameValuePair.get(i).getName(), nameValuePair.get(i).getValue());
+             for(int i = 0; i < nameValuePair.size()-1; i++) {
+                Log.d("wi11b031","wi11b031 namevalues " +nameValuePair.get(i).getValue());
+              post.addHeader(nameValuePair.get(i).getName(), nameValuePair.get(i).getValue());
              }
-
+             UrlEncodedFormEntity p_entity = new UrlEncodedFormEntity(nameValuePair,HTTP.UTF_8);
+             
+             post.setEntity(p_entity);
              response = (HttpResponse) httpClient.execute(post);
-             StatusLine statusLine = response.getStatusLine();
-             if(statusLine.getStatusCode() == HttpURLConnection.HTTP_OK){
-              byte[] result = EntityUtils.toByteArray(response.getEntity());
-                 output = new String(result, "UTF-8");
-             }
+              HttpEntity httpEntity = response.getEntity();
+                 output = EntityUtils.toString(httpEntity);
+             //}
          }
          catch (UnsupportedEncodingException e) {
              e.printStackTrace();
@@ -79,10 +81,10 @@ public class AddImageTask extends AsyncTask<GeoTag, Void, String>{
  protected String doInBackground(GeoTag... geoTags) {
   String x = null;
   
-  //02Hotel Stephansplatz16.3722000122070348.208698272705081Stephansplatz[B@2a8663582014-01-15 00:00:00.
   for (GeoTag gtag : geoTags) {
    if(gtag != null){
-    this.tagsToUpload.add(gtag);
+	   Log.e("AddImageTask","doInBackground: "+gtag);
+	   tag = gtag;
     nameValuePair.add(new BasicNameValuePair("name", gtag.getName()));
     nameValuePair.add(new BasicNameValuePair("lon", ""+gtag.getLongitude()));
     nameValuePair.add(new BasicNameValuePair("lat", ""+gtag.getLatitude()));
@@ -90,34 +92,41 @@ public class AddImageTask extends AsyncTask<GeoTag, Void, String>{
     nameValuePair.add(new BasicNameValuePair("text", gtag.getText()));
     String picPath = gtag.getPicpath();
     if (!picPath.equals(GeoTag.NO_PIC)) {
-     Bitmap pic = BitmapFactory.decodeFile(picPath);
-    //Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.ic_launcher);          
+     Bitmap pic = BitmapFactory.decodeFile(picPath);         
           ByteArrayOutputStream stream = new ByteArrayOutputStream();
-          pic.compress(Bitmap.CompressFormat.PNG, 100, stream); //compress to which format you want.
+          pic.compress(Bitmap.CompressFormat.JPEG, 100, stream); //compress to which format you want.
           byte [] byte_arr = stream.toByteArray();
           String image_str = Base64.encodeToString(byte_arr, Base64.DEFAULT);
-          //nameValuePair.add(new BasicNameValuePair("pic", gtag.getPicpath()));
+          Log.d("wi11b031","wi11b031 image:"+image_str.length());
           nameValuePair.add(new BasicNameValuePair("pic",image_str));
     }
     
     x = upload_Geotag("http://wi-gate.technikum-wien.at:60660/marker/UploadGeotag");
    }
   }
-  return x; //hier returne zeitpunkt vom Tag
-  /*for (GeoTag gtag : geoTags) {
-   if(gtag != null){
-    this.tagsToUpload.add(gtag);
-    nameValuePair
-    return upload_Geotag("http://wi-gate.technikum-wien.at:60660/marker/UploadGeotag");
-   }
-  }*/
-  
-  
-  
+  return x; 
  }
+
  @Override
     protected void onPostExecute(String result) {
-  Log.d("wi11b031","wi11b031 result: "+ result);
+	 if(result != null && result.length() > 0){
+		 Log.e("AddImageTask","result: "+result);
+		 String[] arr = result.split(",");
+		 int externalId = Integer.parseInt(arr[0]);
+		 String time = arr[1];
+		 Log.e("AddImageTask","externalId : "+externalId +" time: "+time);
+		 if(mListener != null){
+			 mListener.serverSyncedWithResult(externalId, tag.getId(), time);
+		 }
+	 }	
     }
+ 
+ public void setListener(SyncWithServerListener listener){
+	 mListener = listener;
+ }
+ 
+ public interface SyncWithServerListener{
+	 public void serverSyncedWithResult(int externalId, int id, String time);
+ }
 
 }

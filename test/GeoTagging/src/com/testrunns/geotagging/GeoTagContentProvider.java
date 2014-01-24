@@ -146,6 +146,7 @@ public class GeoTagContentProvider extends ContentProvider {
 		SQLiteDatabase db = database.getWritableDatabase();
 
 		long id = 0;
+		Log.i("contentProvider","values:"+values);
 
 		int uriType = sURIMatcher.match(uri);
 
@@ -176,9 +177,10 @@ public class GeoTagContentProvider extends ContentProvider {
 
 		switch (uriType) {
 		case GEOTAG_ID:
+			Log.e("ContentProvider","im richtigen case");
 			String updateId = uri.getLastPathSegment();
 			count = db.update(GeoTagTable.DATABASE_TABLE_GEOTAG, values,
-					GeoTagTable.GEOTAG_KEY_EXTERNKEY + "=" + updateId, null);
+					GeoTagTable.GEOTAG_KEY_ID + "=" + updateId, null);
 			break;
 
 		default:
@@ -202,7 +204,7 @@ public class GeoTagContentProvider extends ContentProvider {
 				GeoTagTable.GEOTAG_KEY_NAME, GeoTagTable.GEOTAG_KEY_LONG,
 				GeoTagTable.GEOTAG_KEY_LAT, GeoTagTable.GEOTAG_KEY_TYPE,
 				GeoTagTable.GEOTAG_KEY_PICPATH, GeoTagTable.GEOTAG_KEY_TIME,
-				GeoTagTable.GEOTAG_KEY_EXTERNKEY };
+				GeoTagTable.GEOTAG_KEY_EXTERNKEY, GeoTagTable.GEOTAG_KEY_TEXT };
 
 		if (projection != null) {
 			HashSet<String> requestedColumns = new HashSet<String>(

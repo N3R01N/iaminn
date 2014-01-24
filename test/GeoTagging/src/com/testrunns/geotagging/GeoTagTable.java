@@ -33,6 +33,9 @@ public class GeoTagTable {
 	public static final String GEOTAG_KEY_EXTERNKEY = "geotag_externkey";
 	public static final int GEOTAG_COL_EXTERNKEY = GEOTAG_COL_ID + 7;
 	
+	public static final String GEOTAG_KEY_TEXT = "geotag_text";
+	public static final int GEOTAG_COL_TEXT = GEOTAG_COL_ID + 8;
+	
 
 	/**
 	 * SQLite database creation statement. Auto-increments IDs of inserted
@@ -46,7 +49,8 @@ public class GeoTagTable {
 			+ GEOTAG_KEY_TYPE + " text not null, "
 			+ GEOTAG_KEY_PICPATH + " text not null, "
 			+ GEOTAG_KEY_TIME + " datetime not null, "
-			+ GEOTAG_KEY_EXTERNKEY + " text not null);";
+			+ GEOTAG_KEY_EXTERNKEY + " text not null," 
+			+ GEOTAG_KEY_TEXT + " text not null" + ");";
 
 	/**
 	 * SQLite database table removal statement. Only used if upgrading database.
@@ -62,7 +66,7 @@ public class GeoTagTable {
 	 */
 	public static void onCreate(SQLiteDatabase database) {
 		Log.w("database","creating DB");
-		database.execSQL( DATABASE_DROP );
+		Log.w("database",""+DATABASE_CREATE);
 		database.execSQL( DATABASE_CREATE );
 	}
 
