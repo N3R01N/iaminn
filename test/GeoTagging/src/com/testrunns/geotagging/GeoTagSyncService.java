@@ -56,6 +56,7 @@ public class GeoTagSyncService extends IntentService implements SyncListener {
 
 	public void onDestroy() {
 		Log.e("SyncTask", "onDestroy");
+		setNewGeoTagsListener(null);
 	}
 
 	@Override

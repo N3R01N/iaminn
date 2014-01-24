@@ -40,7 +40,8 @@
             </intent-filter>
         </activity>
  
-        <service android:name="com.testrunns.geotagging.GeoTagSyncService"></service>
+        <service android:name="com.testrunns.geotagging.GeoTagSyncService"
+            android:exported="false"></service>
      
         
         <provider

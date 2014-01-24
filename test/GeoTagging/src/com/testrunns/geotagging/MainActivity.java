@@ -24,12 +24,13 @@ import com.testrunns.geotagging.GeoTagSyncService.NewGeoTagsListener;
 import android.app.ActionBar;
 import android.app.ActionBar.TabListener;
 import android.app.FragmentTransaction;
-import android.app.IntentService;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -59,6 +60,7 @@ public class MainActivity extends FragmentActivity implements TabListener, NewGe
 	ViewPager mViewPager;
 	GeoTagSyncService mService;
 	boolean mBound = false;
+	ViewMapActivity mViewMapFragment;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -110,8 +112,12 @@ public class MainActivity extends FragmentActivity implements TabListener, NewGe
 					.setText(mAppSectionsPagerAdapter.getPageTitle(i))
 					.setTabListener(this));
 		}
-
-		Log.d("main", "fertig mit on create in main");
+		
+		
+		
+		mViewMapFragment = (ViewMapActivity) mAppSectionsPagerAdapter.getItem(0);
+		
+		Log.e("main","mapactivity: "+mViewMapFragment.getClass());
 	}
 
 	protected void onStart() {
@@ -140,8 +146,9 @@ public class MainActivity extends FragmentActivity implements TabListener, NewGe
 		}
 
 		@Override
-		public void onServiceDisconnected(ComponentName arg0) {
-			mBound = false;
+		public void onServiceDisconnected(ComponentName service) {
+			mBound = false;	
+			mService = null;
 		}
 
 	};
@@ -165,6 +172,11 @@ public class MainActivity extends FragmentActivity implements TabListener, NewGe
 	@Override
 	public void onTabReselected(ActionBar.Tab tab,
 			FragmentTransaction fragmentTransaction) {
+		if(tab.getPosition() == 0 && mViewMapFragment != null) {
+			Log.w("main","mviewmap != null");
+			mViewMapFragment.restartLoader();
+		}
+		else Log.w("main","mviewmap = null");
 	}
 
 	/**

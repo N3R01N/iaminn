@@ -15,10 +15,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.app.Activity;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -36,6 +38,7 @@ public class ViewMapActivity extends Fragment implements
 	
 	TextView outputText;
 	ImageView imageView;
+	LoaderManager mLoaderManager;
 
 	private HashMap<Marker, GeoTag> geoTags;
 
@@ -52,7 +55,8 @@ public class ViewMapActivity extends Fragment implements
 
 		geoTags = new HashMap<Marker, GeoTag>();
 
-		getActivity().getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+		mLoaderManager = getActivity().getSupportLoaderManager();
+		mLoaderManager.initLoader(LOADER_ID, null, this);
 
 		map = ((SupportMapFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.map))
 				.getMap();
@@ -60,7 +64,17 @@ public class ViewMapActivity extends Fragment implements
 		map.setOnInfoWindowClickListener(this);
 		imageView.setVisibility(View.INVISIBLE);
 		imageView.setOnClickListener(myhandler);
+		Log.e("ViewMapActivity", "onCreateView fertig!");
 		return rootView;
+	}
+
+	public void restartLoader(){
+		if(mLoaderManager != null){
+			mLoaderManager.restartLoader(LOADER_ID, null, this);
+		}
+		else Log.e("ViewMapActivity", "mLoaderManager = null");
+		
+		
 	}
 
 	View.OnClickListener myhandler = new View.OnClickListener() {
@@ -69,10 +83,26 @@ public class ViewMapActivity extends Fragment implements
 				imageView.setVisibility(View.INVISIBLE);
 		}
 	};
+	
+	public void onAttatch(Activity activity){
+		super.onAttach(activity);
+		Log.i("CallBackMethods","onAttatch");
+	}
+	
+	public void onStart(){
+		super.onStart();
+		Log.i("CallBackMethods","onStart");
+	}
+	
+	public void onResume(){
+		super.onResume();
+		Log.i("CallBackMethods","onResume");
+	}
 
 	@Override
 	public void onInfoWindowClick(Marker marker) {
 		String picPath = geoTags.get(marker).getPicpath();
+		restartLoader();
 		if (!picPath.equals(GeoTag.NO_PIC)) {
 			Bitmap pic = BitmapFactory.decodeFile(picPath);
 			Bitmap thumbnail = ThumbnailUtils.extractThumbnail(pic, 400, 400);
@@ -84,7 +114,7 @@ public class ViewMapActivity extends Fragment implements
 	}
 
 	@Override
-	public Loader<Cursor> onCreateLoader(int arg0, Bundle arg1) {
+	public Loader<Cursor> onCreateLoader(int loaderId, Bundle bundle) {
 		String[] projection = { GeoTagTable.GEOTAG_KEY_ID,
 				GeoTagTable.GEOTAG_KEY_NAME, GeoTagTable.GEOTAG_KEY_LONG,
 				GeoTagTable.GEOTAG_KEY_LAT, GeoTagTable.GEOTAG_KEY_TYPE,
@@ -98,6 +128,7 @@ public class ViewMapActivity extends Fragment implements
 				null, null);
 		return cl;
 	}
+	
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
@@ -127,7 +158,7 @@ public class ViewMapActivity extends Fragment implements
 						.title(g.getName()));
 				map.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
 				
-				Log.w("view Geo Tag",""+g);
+				Log.w("view Geo Tag",""+g.getName());
 
 				geoTags.put(test, g);
 			} while (cursor.moveToNext());

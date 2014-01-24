@@ -1,82 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:id="@+id/fragmentAddGeoTag" >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+    <ScrollView
+        android:id="@+id/scrollViewAddGeoTag"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.94" >
 
-        <Button
-            android:id="@+id/buttonTakePic"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/launch_camera_button" />
+            android:orientation="vertical" >
 
-        <ImageView
-            android:id="@+id/imageViewPic"
-            android:layout_width="wrap_content"
-            android:layout_height="109dp"
-            android:layout_weight="0.29"
-            android:contentDescription="@string/image_content_description"
-            android:src="@drawable/take_pic_icon" />
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" >
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
+                <ImageView
+                    android:id="@+id/imageViewPic"
+                    android:layout_width="0dp"
+                    android:layout_height="109dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="0.29"
+                    android:contentDescription="@string/image_content_description"
+                    android:src="@drawable/take_pic_icon" />
+            </LinearLayout>
 
-        <Button
-            android:id="@+id/buttonSaveTag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/save_tag_button" />
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:layout_marginTop="2dp"
+                android:orientation="horizontal" >
 
-    <EditText
-        android:id="@+id/editTextTagName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:imeOptions="actionDone" 
-        android:singleLine="true">
-    </EditText>
+                <TextView
+                    android:id="@+id/textViewLableLong"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/lable_long"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TextView
-        android:id="@+id/textViewLableLong"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/lable_long"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+                <TextView
+                    android:id="@+id/textViewValueLong"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/default_lat_long" />
+            </LinearLayout>
 
-    <TextView
-        android:id="@+id/textViewValueLong"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:layout_marginTop="2dp"
+                android:orientation="horizontal" >
 
-    <TextView
-        android:id="@+id/textViewLableLat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/lable_lat"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+                <TextView
+                    android:id="@+id/textViewLableLat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/lable_lat"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TextView
-        android:id="@+id/textViewValueLat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0" />
+                <TextView
+                    android:id="@+id/textViewValueLat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/default_lat_long" />
+            </LinearLayout>
 
-    <EditText
-        android:id="@+id/editTextTagDesc"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.36"
-        android:ems="10"
-        android:inputType="textMultiLine" />
+            <TextView
+                android:id="@+id/textViewLableName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/lable_tag_name" />
+
+            <EditText
+                android:id="@+id/editTextTagName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:ems="10"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:singleLine="true" >
+            </EditText>
+
+            <TextView
+                android:id="@+id/textViewLableDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/labla_tag_description" />
+
+            <EditText
+                android:id="@+id/editTextTagDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:ems="10"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:singleLine="true" >
+            </EditText>
+
+            <Button
+                android:id="@+id/buttonSaveTag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:text="@string/save_tag_button" />
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>
