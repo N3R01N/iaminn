@@ -20,6 +20,7 @@ public class XMLParser {
 	//auf exakte schreibweise inkl. groﬂkleinschreibung achten!
 	private static final String Wrapper = "All";
 	private static final String ID = "ID";
+	private static final String Marker = "Marker";
 	private static final String Name = "name";
 	private static final String Lon = "lon";
 	private static final String Lat = "lat";
@@ -49,7 +50,7 @@ public class XMLParser {
             }
             String name = parser.getName();
             // Starts by looking for the entry tag
-            if (name.equals("Marker")) {
+            if (name.equals(Marker)) {
                 entries.add(readGeoTag(parser));
             } else {
                 skip(parser);
@@ -63,7 +64,7 @@ public class XMLParser {
     // Parses the contents of an entry. If it encounters a title, summary, or link tag, hands them off
     // to their respective "read" methods for processing. Otherwise, skips the tag.
     private GeoTag readGeoTag(XmlPullParser parser) throws XmlPullParserException, IOException {
-        parser.require(XmlPullParser.START_TAG, ns, "Marker");
+        parser.require(XmlPullParser.START_TAG, ns, Marker);
         int id = 0, type = 1;
         String name = null, text = null, picpath = null, time = null;
         Bitmap pic;

@@ -61,6 +61,12 @@ public class GeoTagSyncService extends IntentService implements SyncListener {
 	@Override
 	public void syncHasResult(List<GeoTag> tags) {
 		Log.e("Service", "sync had results:" + tags.size());
+		for (GeoTag gtag : tags) {
+			if(gtag != null){
+				DownloadImageTask dlit = new DownloadImageTask();
+				dlit.addNameValuePair("test", gtag.getPicpath());
+			}
+		}
 		if(mListener != null) mListener.addNewGeoTagsFromSync(tags);
 		else Log.e("Service","listener = null");
 	}
