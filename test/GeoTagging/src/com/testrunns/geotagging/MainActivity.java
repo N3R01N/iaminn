@@ -16,10 +16,17 @@
 
 package com.testrunns.geotagging;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import com.testrunns.geotagging.GeoTagSyncService.LocalBinder;
 import com.testrunns.geotagging.GeoTagSyncService.NewGeoTagsListener;
+import com.testrunns.geotagging.GeoTagSyncService.NewPicListener;
 
 import android.app.ActionBar;
 import android.app.ActionBar.TabListener;
@@ -31,8 +38,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -41,7 +51,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 
-public class MainActivity extends FragmentActivity implements TabListener, NewGeoTagsListener {
+public class MainActivity extends FragmentActivity implements TabListener, NewGeoTagsListener, NewPicListener {
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -154,7 +164,10 @@ public class MainActivity extends FragmentActivity implements TabListener, NewGe
 	};
 	
 	public void setServiceListener(){
-		if(mService != null && mBound) mService.setNewGeoTagsListener(this);
+		if(mService != null && mBound){
+			 mService.setNewGeoTagsListener(this);
+			 mService.setNewPicListener(this);
+		}
 		else Log.e("MainActivity","something wrong with mService!\n mService: "+mService +" mBound: "+mBound);
 	}
 
@@ -220,12 +233,28 @@ public class MainActivity extends FragmentActivity implements TabListener, NewGe
 			}
 		}
 	}
+	
+	public File createImageFile() throws IOException {
+		// Create an image file name
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
+				.format(new Date());
+		String imageFileName = "JPEG_" + timeStamp + "_";
+		File storageDir = Environment
+				.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+		File image = File.createTempFile(imageFileName, /* prefix */
+				".jpg", /* suffix */
+				storageDir /* directory */
+		);
+
+		// Save a file: path for use with ACTION_VIEW intents
+		return image;
+	}
 
 	@Override
 	public void addNewGeoTagsFromSync(List<GeoTag> tags) {
 		if(tags != null && tags.size() > 0){
 			for (GeoTag tag : tags) {
-				Log.e("Main Add Tag","tag:"+tag);
+				Log.e("Main Add Tag","tag:"+tag.getExternalKey());
 				Uri uri = Uri.parse(GeoTagContentProvider.CONTENT_URI+"/geotag/"+tag.getId());
 				ContentValues cv = new ContentValues();
                 cv.put(GeoTagTable.GEOTAG_KEY_NAME, tag.getName());
@@ -244,6 +273,35 @@ public class MainActivity extends FragmentActivity implements TabListener, NewGe
 			}
 		}
 		else Log.w("test","bin da aber im else");
+		
+	}
+
+	@Override
+	public void addPicToGeoTag(Bitmap bitmap, String externalId) {
+		File newPic = null;
+		try {
+			newPic = createImageFile();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(newPic != null){
+			FileOutputStream out;
+			try {
+				out = new FileOutputStream(newPic);
+				bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+				Uri uri = Uri.parse(GeoTagContentProvider.CONTENT_URI+"/geotag/"+externalId);
+				ContentValues cv = new ContentValues();
+				cv.put(GeoTagTable.GEOTAG_KEY_PICPATH, newPic.getAbsolutePath());
+				
+				int count = getContentResolver().update(uri, cv, null, null);
+				Log.i("addPic","count: "+count);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
 		
 	}
 }

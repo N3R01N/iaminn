@@ -14,7 +14,7 @@ public class GeoTag {
 	public static final String NEW_TAG = "new";
 	public static final String NO_PIC = "noPic";
 	
-	public static final DateFormat df = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+	public static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
 	private int id;
 	private String name;
@@ -39,6 +39,7 @@ public class GeoTag {
 
 	public GeoTag(String name, double lo, double la, int type, String text,
 			String pic) {
+		Log.i("GeoTag","constructor sollte von AddGeoTagActivity aufgerufen werden!");
 		id = 0;
 		this.name = name;
 		longitude = lo;
@@ -52,7 +53,8 @@ public class GeoTag {
 	
 	public GeoTag(int id, String name, double lo, double la, int type, String text,
 			String pic, String time){
-		id = 0;
+		Log.i("GeoTag","constructor sollte von XMLParser aufgerufen werden! id:"+id);
+		this.id = 0;
 		this.name = name;
 		longitude = lo;
 		latitude = la;
@@ -142,7 +144,7 @@ public class GeoTag {
 	public String toString() {
 		return "id: " + id + "\nname: " + name + "\nlong: " + longitude
 				+ "\nlat: " + latitude + "\ntype: " + type + "\npic path: "
-				+ picpath + "\nexternal id: " + externalKey + "\ndate: " + time;
+				+ picpath + "\nexternal id: " + externalKey + "\ndate: " + getTime();
 	}
 
 	public boolean equals(Object obj) {

@@ -52,7 +52,7 @@ public class GeoTagContentProvider extends ContentProvider {
 		sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/geotag/#", GEOTAG_ID);
 		sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/type/#", GEOTAG_TYPE);
 		sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/sync/#", GEOTAG_SYNC);
-		sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/sync/#", SERVER_SYNC);
+		sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/syncserver/#", SERVER_SYNC);
 	}
 
 	@Override
@@ -89,12 +89,13 @@ public class GeoTagContentProvider extends ContentProvider {
 
 			break;
 		case GEOTAG_SYNC:
-			builder.appendWhere(GeoTagTable.GEOTAG_KEY_EXTERNKEY + "="
-					+ GeoTag.NEW_TAG);
+			Log.i("ContentProvider","im richtigen case!");
+			builder.appendWhere(GeoTagTable.GEOTAG_KEY_EXTERNKEY + "='"
+					+ GeoTag.NEW_TAG+"'");
 			break;
 		case SERVER_SYNC:
+			builder.appendWhere(GeoTagTable.GEOTAG_KEY_EXTERNKEY + " != '" + GeoTag.NEW_TAG +"'");
 			sortOrder = GeoTagTable.GEOTAG_KEY_TIME + " DESC";
-			Log.d("contentprovider","richtig!"+builder.toString());
 			break;
 
 		default:
@@ -165,6 +166,7 @@ public class GeoTagContentProvider extends ContentProvider {
 	@Override
 	public int update(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
+		Log.e("contentprovider","update: "+uri);
 
 		SQLiteDatabase db = database.getWritableDatabase();
 
@@ -176,7 +178,7 @@ public class GeoTagContentProvider extends ContentProvider {
 		case GEOTAG_ID:
 			String updateId = uri.getLastPathSegment();
 			count = db.update(GeoTagTable.DATABASE_TABLE_GEOTAG, values,
-					GeoTagTable.GEOTAG_KEY_ID + "=" + updateId, null);
+					GeoTagTable.GEOTAG_KEY_EXTERNKEY + "=" + updateId, null);
 			break;
 
 		default:

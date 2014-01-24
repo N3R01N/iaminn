@@ -15,7 +15,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.app.Activity;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -57,6 +59,7 @@ public class ViewMapActivity extends Fragment implements
 
 		mLoaderManager = getActivity().getSupportLoaderManager();
 		mLoaderManager.initLoader(LOADER_ID, null, this);
+		
 
 		map = ((SupportMapFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.map))
 				.getMap();
@@ -70,7 +73,8 @@ public class ViewMapActivity extends Fragment implements
 
 	public void restartLoader(){
 		if(mLoaderManager != null){
-			mLoaderManager.restartLoader(LOADER_ID, null, this);
+			Log.e("ViewMapActivity", "mLoaderManager != null");
+			mLoaderManager.getLoader(LOADER_ID).onContentChanged();
 		}
 		else Log.e("ViewMapActivity", "mLoaderManager = null");
 		
@@ -101,7 +105,9 @@ public class ViewMapActivity extends Fragment implements
 
 	@Override
 	public void onInfoWindowClick(Marker marker) {
-		String picPath = geoTags.get(marker).getPicpath();
+		GeoTag tag = geoTags.get(marker);
+		String picPath = tag.getPicpath();
+		LatLng pos = new LatLng(tag.getLatitude(), tag.getLongitude());
 		restartLoader();
 		if (!picPath.equals(GeoTag.NO_PIC)) {
 			Bitmap pic = BitmapFactory.decodeFile(picPath);
@@ -109,6 +115,7 @@ public class ViewMapActivity extends Fragment implements
 			imageView.setImageBitmap(thumbnail);
 			imageView.setVisibility(View.VISIBLE);
 			imageView.bringToFront();
+			map.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
 
 		}
 	}
@@ -158,7 +165,7 @@ public class ViewMapActivity extends Fragment implements
 						.title(g.getName()));
 				map.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
 				
-				Log.w("view Geo Tag",""+g.getName());
+				Log.w("view Geo Tag",""+g);
 
 				geoTags.put(test, g);
 			} while (cursor.moveToNext());
@@ -167,9 +174,8 @@ public class ViewMapActivity extends Fragment implements
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
-		Log.d("wi11b031", "on Loader Reset");
+	public void onLoaderReset(Loader<Cursor> arg0) {
+		Log.e("ViewMapActivity", "onLoaderReset!");
+		
 	}
-
-
 }
